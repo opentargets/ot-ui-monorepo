@@ -1,23 +1,24 @@
-import { SectionItem, usePlatformApi } from "ui";
+import { SectionItem } from "ui";
+import { useQuery } from "@apollo/client";
 
 import Description from "./Description";
 import { definition } from ".";
 import { getUniprotIds } from "../../utils/global";
 import ProtVista from "./ProtVista";
 
-import PROTVISTA_SUMMARY_FRAGMENT from "./summaryQuery.gql";
+import PROTVISTA_QUERY from "./ProtVistaQuery.gql";
 
-function Body({ label: symbol, entity }) {
-  const request = usePlatformApi(PROTVISTA_SUMMARY_FRAGMENT);
-
+function Body({ id: ensemblId, label: symbol, entity }) {
+  const variables = { ensemblId };
+  const request = useQuery(PROTVISTA_QUERY, { variables });
   return (
     <SectionItem
       definition={definition}
       entity={entity}
       request={{ ...request, data: { [entity]: request.data } }}
       renderDescription={() => <Description symbol={symbol} />}
-      renderBody={(data) => {
-        const uniprotId = getUniprotIds(data[entity].proteinIds)[0];
+      renderBody={({ target: { target } }) => {
+        const uniprotId = getUniprotIds(target.proteinIds)[0];
 
         return <ProtVista uniprotId={uniprotId} />;
       }}

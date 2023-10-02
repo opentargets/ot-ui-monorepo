@@ -17,6 +17,7 @@ import VariantsPage from './pages/VariantsPage';
 import APIPage from './pages/APIPage';
 import NotFoundPage from './pages/NotFoundPage';
 import ProjectsPage from './pages/ProjectsPage';
+import TheoremPage from './pages/Theorem';
 
 function App() {
   return (
@@ -30,6 +31,9 @@ function App() {
             <Switch>
               <Route exact path="/">
                 <HomePage />
+              </Route>
+              <Route path="/theorem">
+                <TheoremPage />
               </Route>
               <Route path="/search">
                 <SearchPage />
