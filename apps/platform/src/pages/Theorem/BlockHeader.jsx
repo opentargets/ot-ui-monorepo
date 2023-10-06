@@ -14,6 +14,7 @@ const useStyles = makeStyles(theme => ({
     justifyContent: 'start',
     display: 'flex',
     alignItems: 'center',
+    marginRight: '5px !important',
   },
   mainIcon: {
     color: theme.palette.primary.main,

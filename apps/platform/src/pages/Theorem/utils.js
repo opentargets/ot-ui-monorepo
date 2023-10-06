@@ -3,24 +3,26 @@ import EVIDENCE_PROFILE_QUERY from './querys/EvidenceProfile.gql';
 import DRUG_PROFILE_QUERY from './querys/DrugProfile.gql';
 import DISEASE_PROFILE_QUERY from './querys/DiseaseProfile.gql';
 
+// subcellularLocation, bibliography, uniprot_variants, protVista
+
 export const INIT_BLOCKS_STATE = [
   {
     id: 'target_ENSG00000001626',
     entity: 'target',
     inputs: ['ENSG00000001626'],
-    sections: ['safety', 'subcellularLocation', 'protVista'],
+    sections: ['bibliography'],
   },
   {
     id: 'target_ENSG00000183454',
     entity: 'target',
     inputs: ['ENSG00000183454'],
-    sections: ['safety', 'protVista'],
+    sections: ['safety'],
   },
   {
     id: 'disease_EFO_0000618',
     entity: 'disease',
     inputs: ['EFO_0000618'],
-    sections: ['phenotypes'],
+    sections: ['phenotypes', 'bibliography'],
   },
   {
     id: 'drug_CHEMBL192',
@@ -28,12 +30,12 @@ export const INIT_BLOCKS_STATE = [
     inputs: ['CHEMBL192'],
     sections: ['indications'],
   },
-  {
-    id: 'evidence_ENSG00000183454_EFO_0000618',
-    entity: 'evidence',
-    inputs: ['ENSG00000183454', 'EFO_0000618'],
-    sections: ['gene2phenotype', 'chembl'],
-  },
+  // {
+  //   id: 'evidence_ENSG00000183454_Orphanet_1945',
+  //   entity: 'evidence',
+  //   inputs: ['ENSG00000183454', 'Orphanet_1945'],
+  //   sections: ['impc'],
+  // },
 ];
 
 export const ENTITIES = {

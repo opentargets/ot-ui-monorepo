@@ -122,6 +122,12 @@ export const mainMenuItems = config.profile.mainMenuItems ?? [
     url: 'https://community.opentargets.org/',
     external: true,
   },
+  // Theorem
+  {
+    name: 'Theorem',
+    url: '/theorem',
+    external: false,
+  },
   // Contact - ppp
   {
     name: 'Contact us',

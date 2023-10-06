@@ -1,8 +1,8 @@
 /* eslint-disable prefer-destructuring */
 import { v1 } from 'uuid';
-import { Suspense, useState } from 'react';
+import { Suspense } from 'react';
 import { useQuery } from '@apollo/client';
-import { BasePage } from 'ui';
+import { BasePage, useStateParams } from 'ui';
 
 import { BlockWrapper } from './components';
 import BlockHeader from './BlockHeader';
@@ -19,28 +19,35 @@ function SectionRender({ entity, section, inputs = [] }) {
   let Component = null;
   let id = null;
   let label = null;
+  let entityForSection = null;
   switch (entity) {
     case ENTITIES.TARGET:
       Component = targetSections.get(section);
       id = inputs[0];
+      entityForSection = entity;
       break;
     case ENTITIES.DISEASE:
       Component = diseaseSections.get(section);
       id = inputs[0];
+      entityForSection = entity;
       break;
     case ENTITIES.DRUG:
       Component = drugSections.get(section);
       id = inputs[0];
+      entityForSection = entity;
       break;
     case ENTITIES.EVIDENCE:
       Component = evidenceSections.get(section);
       id = { ensgId: inputs[0], efoId: inputs[1] };
       label = { symbol: '', name: '' };
+      entityForSection = ENTITIES.DISEASE;
       break;
     default:
       return 'No Section parser';
   }
-  return <Component key={v1()} id={id} label={label} entity={entity} />;
+  return (
+    <Component key={v1()} id={id} label={label} entity={entityForSection} />
+  );
 }
 
 function BlockRender({ entity, inputs, children }) {
@@ -62,7 +69,12 @@ function BlockRender({ entity, inputs, children }) {
 }
 
 function TheoremPage() {
-  const [blocks, setBlocks] = useState(INIT_BLOCKS_STATE);
+  const [blocks, setBlocks] = useStateParams(
+    INIT_BLOCKS_STATE,
+    'blocks',
+    obj => JSON.stringify(obj),
+    str => JSON.parse(str)
+  );
 
   return (
     <BasePage>
