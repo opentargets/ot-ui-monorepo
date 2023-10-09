@@ -10,13 +10,7 @@ export const INIT_BLOCKS_STATE = [
     id: 'target_ENSG00000001626',
     entity: 'target',
     inputs: ['ENSG00000001626'],
-    sections: ['bibliography'],
-  },
-  {
-    id: 'target_ENSG00000183454',
-    entity: 'target',
-    inputs: ['ENSG00000183454'],
-    sections: ['safety'],
+    sections: ['protVista'],
   },
   {
     id: 'disease_EFO_0000618',
@@ -30,12 +24,12 @@ export const INIT_BLOCKS_STATE = [
     inputs: ['CHEMBL192'],
     sections: ['indications'],
   },
-  // {
-  //   id: 'evidence_ENSG00000183454_Orphanet_1945',
-  //   entity: 'evidence',
-  //   inputs: ['ENSG00000183454', 'Orphanet_1945'],
-  //   sections: ['impc'],
-  // },
+  {
+    id: 'evidence_ENSG00000183454_Orphanet_1945',
+    entity: 'evidence',
+    inputs: ['ENSG00000183454', 'Orphanet_1945'],
+    sections: ['impc'],
+  },
 ];
 
 export const ENTITIES = {

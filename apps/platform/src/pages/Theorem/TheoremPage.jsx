@@ -1,98 +1,134 @@
-/* eslint-disable prefer-destructuring */
+import {
+  Typography,
+  styled,
+  Stack,
+  Card,
+  CardActionArea,
+  CardContent,
+} from '@mui/material';
+import { Route } from 'react-router-dom';
+import { BasePage, Link } from 'ui';
 import { v1 } from 'uuid';
-import { Suspense } from 'react';
-import { useQuery } from '@apollo/client';
-import { BasePage, useStateParams } from 'ui';
+import { faPlus } from '@fortawesome/free-solid-svg-icons';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
-import { BlockWrapper } from './components';
-import BlockHeader from './BlockHeader';
-import EditDrawer from './EditDrawer';
+import TheoremInstance from './TheoremInstance';
+import useLocalStorage from './useLocalStorage';
+import { ENTITIES } from './utils';
 
-import targetSections from '../../sections/targetSections';
-import evidenceSections from '../../sections/evidenceSections';
-import drugSections from '../../sections/drugSections';
-import diseaseSections from '../../sections/diseaseSections';
+const TheoremsList = styled(Stack)``;
 
-import { ENTITIES, INIT_BLOCKS_STATE, getBlockProfileQuery } from './utils';
+const AddIconContainer = styled('div')`
+  width: 100%;
+  min-height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+`;
 
-function SectionRender({ entity, section, inputs = [] }) {
-  let Component = null;
-  let id = null;
-  let label = null;
-  let entityForSection = null;
-  switch (entity) {
-    case ENTITIES.TARGET:
-      Component = targetSections.get(section);
-      id = inputs[0];
-      entityForSection = entity;
-      break;
-    case ENTITIES.DISEASE:
-      Component = diseaseSections.get(section);
-      id = inputs[0];
-      entityForSection = entity;
-      break;
-    case ENTITIES.DRUG:
-      Component = drugSections.get(section);
-      id = inputs[0];
-      entityForSection = entity;
-      break;
-    case ENTITIES.EVIDENCE:
-      Component = evidenceSections.get(section);
-      id = { ensgId: inputs[0], efoId: inputs[1] };
-      label = { symbol: '', name: '' };
-      entityForSection = ENTITIES.DISEASE;
-      break;
-    default:
-      return 'No Section parser';
-  }
+function AddTheorem({ onClick }) {
   return (
-    <Component key={v1()} id={id} label={label} entity={entityForSection} />
+    <Card
+      sx={{ maxWidth: 345, backgroundColor: '#f4f4f4' }}
+      onClick={() => onClick()}
+    >
+      <CardActionArea>
+        <CardContent>
+          <Typography gutterBottom variant="h6" component="div">
+            Add theorem
+          </Typography>
+          <AddIconContainer>
+            <FontAwesomeIcon icon={faPlus} />
+          </AddIconContainer>
+        </CardContent>
+      </CardActionArea>
+    </Card>
   );
 }
 
-function BlockRender({ entity, inputs, children }) {
-  const { query, variables } = getBlockProfileQuery({ entity, inputs });
-  const { data, loading, error } = useQuery(query, {
-    variables,
-  });
+function TheoremHome() {
+  const [theoremState, setTheoremState] = useLocalStorage('theorems');
 
-  if (loading) return <BlockWrapper>Loading block ...</BlockWrapper>;
-  if (!data && !loading) return null;
-  if (error) return null;
+  const handleAddTheoremClick = () => {
+    setTheoremState([[], ...theoremState]);
+  };
 
   return (
-    <BlockWrapper>
-      <BlockHeader entity={entity} data={data} />
-      {children}
-    </BlockWrapper>
+    <BasePage>
+      <Typography variant="h4" paragraph>
+        Theorem
+      </Typography>
+      <Typography paragraph>
+        Theorem is a graphical interface that lets users to build their own
+        research experience using the Open Targets entities.
+      </Typography>
+
+      <TheoremsList direction="row" spacing={2}>
+        {theoremState.map(theorem => (
+          <Link
+            key={v1()}
+            to={`/theorem/research?blocks=${JSON.stringify(theorem)}`}
+          >
+            <Card sx={{ maxWidth: 345 }}>
+              <CardActionArea>
+                <CardContent>
+                  <Typography gutterBottom variant="h6" component="div">
+                    Hypothesis
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Evidence{' '}
+                    <b>
+                      {
+                        theorem.filter(el => el.entity === ENTITIES.EVIDENCE)
+                          .length
+                      }
+                    </b>
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Target{' '}
+                    <b>
+                      {
+                        theorem.filter(el => el.entity === ENTITIES.TARGET)
+                          .length
+                      }
+                    </b>
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Disease{' '}
+                    <b>
+                      {
+                        theorem.filter(el => el.entity === ENTITIES.DISEASE)
+                          .length
+                      }
+                    </b>
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Drug{' '}
+                    <b>
+                      {theorem.filter(el => el.entity === ENTITIES.DRUG).length}
+                    </b>
+                  </Typography>
+                </CardContent>
+              </CardActionArea>
+            </Card>
+          </Link>
+        ))}
+        <AddTheorem onClick={handleAddTheoremClick} />
+      </TheoremsList>
+    </BasePage>
   );
 }
 
 function TheoremPage() {
-  const [blocks, setBlocks] = useStateParams(
-    INIT_BLOCKS_STATE,
-    'blocks',
-    obj => JSON.stringify(obj),
-    str => JSON.parse(str)
-  );
-
   return (
-    <BasePage>
-      <EditDrawer blocks={blocks} setBlocks={setBlocks} />
-      {blocks.map(({ entity, sections, inputs }) => (
-        <BlockRender key={v1()} entity={entity} inputs={inputs}>
-          {sections.map(section => (
-            <Suspense key={v1()} fallback="Loading">
-              <SectionRender
-                entity={entity}
-                section={section}
-                inputs={inputs}
-              />
-            </Suspense>
-          ))}
-        </BlockRender>
-      ))}
-    </BasePage>
+    <div>
+      <Route exact path="/theorem">
+        <TheoremHome />
+      </Route>
+      <Route path="/theorem/research">
+        <TheoremInstance />
+      </Route>
+    </div>
   );
 }
 

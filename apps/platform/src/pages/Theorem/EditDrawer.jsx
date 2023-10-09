@@ -3,6 +3,25 @@ import { Button, Box } from '@mui/material';
 import { Drawer } from './components';
 import BlocksTreeView from './BlocksTreeView';
 
+function TextArea({ blocks }) {
+  const [value, setValue] = useState(JSON.stringify(blocks, null, 4));
+
+  const onChangeText = e => {
+    const newValue = e.target.value;
+    setValue(newValue);
+  };
+
+  return (
+    <textarea
+      rows="40"
+      cols={50}
+      value={value}
+      onChange={onChangeText}
+      className="state-input"
+    />
+  );
+}
+
 function EditDrawer({ blocks, setBlocks }) {
   const [open, setOpen] = useState(false);
 
@@ -46,12 +65,7 @@ function EditDrawer({ blocks, setBlocks }) {
           justifyContent="center"
           alignItems="center"
         >
-          <textarea
-            rows="40"
-            cols={50}
-            value={JSON.stringify(blocks, null, 4)}
-            className="state-input"
-          />
+          <TextArea blocks={blocks} />
         </Box>
         <Box
           marginTop={1}

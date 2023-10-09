@@ -14,3 +14,10 @@ export const Drawer = styled(MuiDrawer)({
     width: '500px',
   },
 });
+
+export const ControlsWrapper = styled('div')({
+  display: 'flex',
+  flexDirection: 'row',
+  gap: '20px',
+  alignItems: 'center',
+});
