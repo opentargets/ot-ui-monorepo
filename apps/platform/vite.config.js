@@ -16,4 +16,9 @@ export default defineConfig({
       },
     }),
   ],
+  resolve: {
+    alias: {
+      Molstar: 'molstar/lib'
+    }
+  }
 });

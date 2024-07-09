@@ -39,7 +39,7 @@ import client from "../../client";
 // const GeneOntologySection = lazy(() => import("sections/src/target/GeneOntology/Body"));
 // const GeneticConstraintSection = lazy(() => import("sections/src/target/GeneticConstraint/Body"));
 const ProtVistaSectionNew = lazy(() => import("sections/src/target/ProtVistaNew/Body"));
-const ProtVistaSection = lazy(() => import("sections/src/target/ProtVista/Body"));
+// const ProtVistaSection = lazy(() => import("sections/src/target/ProtVista/Body"));
 // const MolecularInteractionsSection = lazy(() =>
 //   import("sections/src/target/MolecularInteractions/Body")
 // );
@@ -97,8 +97,8 @@ function Profile({ ensgId, symbol }) {
       client={client}
     >
       <ProfileHeader />
-      <SummaryContainer>
-        {/* <KnownDrugsSummary />
+      {/* <SummaryContainer>
+        <KnownDrugsSummary />
         <TractabilitySummary />
         <SafetySummary />
         <PharmacogenomicsSummary />
@@ -107,15 +107,15 @@ function Profile({ ensgId, symbol }) {
         <DepMapSummary />
         <SubcellularLocationSummary />
         <GeneOntologySummary />
-        <GeneticConstraintSummary /> */}
+        <GeneticConstraintSummary />
         <ProtVistaSummary />
-        {/* <MolecularInteractionsSummary />
+        <MolecularInteractionsSummary />
         <PathwaysSummary />
         <CancerHallmarksSummary />
         <MousePhenotypesSummary />
         <ComparativeGenomicsSummary />
-        <BibliographySummary /> */}
-      </SummaryContainer>
+        <BibliographySummary />
+      </SummaryContainer> */}
 
       <SectionContainer>
         {/* <Suspense fallback={<SectionLoader />}>
@@ -151,9 +151,9 @@ function Profile({ ensgId, symbol }) {
         <Suspense fallback={<SectionLoader />}>
           <ProtVistaSectionNew id={ensgId} label={symbol} entity={TARGET} />
         </Suspense>
-        <Suspense fallback={<SectionLoader />}>
+        {/* <Suspense fallback={<SectionLoader />}>
           <ProtVistaSection id={ensgId} label={symbol} entity={TARGET} />
-        </Suspense>
+        </Suspense> */}
         {/* <Suspense fallback={<SectionLoader />}>
           <MolecularInteractionsSection id={ensgId} label={symbol} entity={TARGET} />
         </Suspense>
