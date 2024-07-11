@@ -29,7 +29,6 @@
     "litemol": "^2.4.2",
     "local-storage": "^2.0.0",
     "lodash": "^4.17.21",
-    "pdbe-molstar": "^3.2.0",
     "plotly.js": "^2.23.1",
     "plotly.js-cartesian-dist-min": "^2.29.0",
     "protvista-uniprot": "2.11.1",
