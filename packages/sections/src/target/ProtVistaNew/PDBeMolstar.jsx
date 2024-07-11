@@ -1,6 +1,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { PDBeMolstarPlugin } from "pdbe-molstar/lib"
+import "./pdbe-molstar.css";
 
 function PDBeMolstar({ uniprotId }) {
 
