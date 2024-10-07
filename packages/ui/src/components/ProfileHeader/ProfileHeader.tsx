@@ -1,4 +1,4 @@
-import { Children } from "react";
+import { Children, ReactNode } from "react";
 import { Grid } from "@mui/material";
 import { makeStyles } from "@mui/styles";
 
@@ -11,13 +11,18 @@ const useStyles = makeStyles({
   },
 });
 
-function ProfileHeader({ children }) {
+type ProfileHeaderProps = {
+  children?: ReactNode;
+  nColumns?: 1 | 2 | 3 | 4;
+};
+
+function ProfileHeader({ children, nColumns = 2 }: ProfileHeaderProps) {
   const classes = useStyles();
 
   return (
     <Grid className={classes.profileHeaderContainer} container spacing={2}>
       {Children.map(children, child => (
-        <Grid className={classes.profileHeaderSection} item xs={12} md={6}>
+        <Grid className={classes.profileHeaderSection} item xs={12} md={12 / nColumns}>
           {child}
         </Grid>
       ))}

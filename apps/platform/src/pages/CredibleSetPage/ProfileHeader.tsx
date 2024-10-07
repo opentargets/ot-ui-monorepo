@@ -36,7 +36,26 @@ function ProfileHeader({ variantId }: ProfileHeaderProps) {
       : credibleSet ?? {};
 
   return (
-    <BaseProfileHeader>
+    <BaseProfileHeader nColumns={3}>
+
+      <Box>
+        <Typography variant="subtitle1" mt={1}>Credible Set</Typography>
+        <Field loading={loading} title="Finemapping method">
+          {credibleSet?.finemappingMethod}
+        </Field>
+        <Field loading={loading} title="Credible set index">
+          {credibleSet?.credibleSetIndex}
+        </Field>
+        <Field loading={loading} title="Purity min">
+          {credibleSet?.purityMinR2?.toPrecision(3)}
+        </Field>
+        <Field loading={loading} title="Start">
+          {credibleSet?.locusStart}
+        </Field>
+        <Field loading={loading} title="End">
+          {credibleSet?.locusEnd}
+        </Field>
+      </Box>
         
       <Box>
         <Typography variant="subtitle1" mt={0}>Lead Variant</Typography>
@@ -130,23 +149,6 @@ function ProfileHeader({ variantId }: ProfileHeaderProps) {
               }
             </Field>
         }
-
-        <Typography variant="subtitle1" mt={1}>Credible Set</Typography>
-        <Field loading={loading} title="Finemapping method">
-          {credibleSet?.finemappingMethod}
-        </Field>
-        <Field loading={loading} title="Credible set index">
-          {credibleSet?.credibleSetIndex}
-        </Field>
-        <Field loading={loading} title="Purity min">
-          {credibleSet?.purityMinR2?.toPrecision(3)}
-        </Field>
-        <Field loading={loading} title="Start">
-          {credibleSet?.locusStart}
-        </Field>
-        <Field loading={loading} title="End">
-          {credibleSet?.locusEnd}
-        </Field>
       </Box>
 
       <Box>
