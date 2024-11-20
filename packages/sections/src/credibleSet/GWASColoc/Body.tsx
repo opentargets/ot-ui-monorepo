@@ -1,11 +1,22 @@
-import { useQuery } from "@apollo/client";
-import { Link, SectionItem, DisplayVariantId, ScientificNotation, OtTable } from "ui";
-import { naLabel } from "../../constants";
+import { ApolloQueryResult, useQuery } from "@apollo/client";
+import {
+  Link,
+  SectionItem,
+  DisplayVariantId,
+  ScientificNotation,
+  OtTable,
+  getPage,
+  Table,
+  useCursorBatchDownloader,
+} from "ui";
+import { defaultRowsPerPageOptions, naLabel } from "../../constants";
 import { definition } from ".";
 import Description from "./Description";
 import GWAS_COLOC_QUERY from "./GWASColocQuery.gql";
 import { mantissaExponentComparator, variantComparator } from "../../utils/comparators";
 import { getStudyCategory } from "../../utils/getStudyCategory";
+import client from "../../client";
+import { ReactElement, useEffect, useState } from "react";
 
 const columns = [
   {
@@ -155,37 +166,126 @@ type BodyProps = {
   entity: string;
 };
 
-function Body({ studyLocusId, entity }: BodyProps) {
+type fetchGwasColocProps = {
+  studyLocusId: string;
+  page: number;
+  size: number;
+  // freeTextQuery: string;
+};
+
+function fetchGwasColoc({
+  studyLocusId,
+  page,
+  size,
+}: // freeTextQuery,
+fetchGwasColocProps): Promise<ApolloQueryResult<any>> {
+  return client.query({
+    query: GWAS_COLOC_QUERY,
+    variables: {
+      studyLocusIds: [studyLocusId],
+      index: page,
+      size,
+      // freeTextQuery,
+    },
+  });
+}
+
+function Body({ studyLocusId, entity }: BodyProps): ReactElement {
   const variables = {
     studyLocusIds: [studyLocusId],
   };
 
-  const request = useQuery(GWAS_COLOC_QUERY, {
-    variables,
-  });
+  const [initialLoading, setInitialLoading] = useState(true); // state variable to keep track of initial loading of rows
+  const [loading, setLoading] = useState(false); // state variable to keep track of loading state on page chage
+  const [count, setCount] = useState(0);
+  const [rows, setRows] = useState([]);
+  const [page, setPage] = useState(0);
+  const [size, setPageSize] = useState(10);
+
+  useEffect(() => {
+    let isCurrent = true;
+
+    fetchGwasColoc({ studyLocusId, page, size }).then(res => {
+      const { cursor: newCursor, rows: newRows, count: newCount } = res.data.credibleSets;
+      if (isCurrent) {
+        setInitialLoading(false);
+        // setCursor(newCursor);
+        setCount(newCount);
+        setRows(newRows);
+      }
+    });
+
+    return () => {
+      isCurrent = false;
+    };
+  }, []);
+
+  const handleRowsPerPageChange = newPageSize => {
+    const newPageSizeInt = Number(newPageSize);
+    if (newPageSizeInt > rows.length && page !== 0) {
+      setLoading(true);
+      fetchGwasColoc({ studyLocusId, page, size }).then(res => {
+        const { cursor: newCursor, rows: newRows } = res.data.credibleSets;
+        setRows([...rows, ...newRows]);
+        setLoading(false);
+        // setCursor(newCursor);
+        setPage(0);
+        setPageSize(newPageSizeInt);
+      });
+    } else {
+      setPage(0);
+      setPageSize(newPageSizeInt);
+    }
+  };
+
+  const handlePageChange = newPage => {
+    const newPageInt = Number(newPage);
+    if (size * newPageInt + size > rows.length && page !== 0) {
+      setLoading(true);
+      fetchGwasColoc({ studyLocusId, page, size }).then(res => {
+        const { cursor: newCursor, rows: newRows } = res.data.credibleSets;
+        setRows([...rows, ...newRows]);
+        setLoading(false);
+        // setCursor(newCursor);
+        setPage(0);
+      });
+    } else {
+      setPage(newPageInt);
+    }
+  };
+
+  const getWholeDataset = useCursorBatchDownloader(GWAS_COLOC_QUERY, variables, `data.disease.eva`);
 
   return (
     <SectionItem
       definition={definition}
       entity={entity}
-      request={request}
-      renderDescription={() => <Description />}
-      renderBody={() => {
-        return (
-          <OtTable
-            dataDownloader
-            showGlobalFilter
-            dataDownloaderFileStem={`${studyLocusId}-credibleSets`}
-            sortBy="pValue"
-            order="asc"
-            columns={columns}
-            loading={request.loading}
-            rows={request.data?.credibleSets[0].colocalisation}
-            query={GWAS_COLOC_QUERY.loc.source.body}
-            variables={variables}
-          />
-        );
+      showContentLoading={true}
+      request={{
+        loading: initialLoading,
+        data: { [entity]: { eva: { rows, count } } },
       }}
+      renderDescription={() => <Description />}
+      renderBody={() => (
+        <Table
+          loading={loading}
+          columns={columns}
+          rows={getPage(rows, page, size)}
+          rowCount={count}
+          rowsPerPageOptions={defaultRowsPerPageOptions}
+          page={page}
+          pageSize={size}
+          onPageChange={handlePageChange}
+          onRowsPerPageChange={handleRowsPerPageChange}
+          // onSortBy={handleSortBy}
+          query={GWAS_COLOC_QUERY.loc.source.body}
+          dataDownloader
+          dataDownloaderRows={getWholeDataset}
+          // dataDownloaderColumns={exportColumns}
+          dataDownloaderFileStem="credible-set-gwas-coloc"
+          variables={variables}
+        />
+      )}
     />
   );
 }
