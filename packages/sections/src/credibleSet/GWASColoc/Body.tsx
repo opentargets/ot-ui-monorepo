@@ -1,10 +1,10 @@
+import { ReactElement, useEffect, useState } from "react";
 import { ApolloQueryResult, useQuery } from "@apollo/client";
 import {
   Link,
   SectionItem,
   DisplayVariantId,
   ScientificNotation,
-  OtTable,
   getPage,
   Table,
   useCursorBatchDownloader,
@@ -16,7 +16,6 @@ import GWAS_COLOC_QUERY from "./GWASColocQuery.gql";
 import { mantissaExponentComparator, variantComparator } from "../../utils/comparators";
 import { getStudyCategory } from "../../utils/getStudyCategory";
 import client from "../../client";
-import { ReactElement, useEffect, useState } from "react";
 
 const columns = [
   {
@@ -179,6 +178,11 @@ function fetchGwasColoc({
   size,
 }: // freeTextQuery,
 fetchGwasColocProps): Promise<ApolloQueryResult<any>> {
+  console.log("fetching query", {
+    studyLocusId,
+    page,
+    size,
+  });
   return client.query({
     query: GWAS_COLOC_QUERY,
     variables: {
@@ -204,12 +208,12 @@ function Body({ studyLocusId, entity }: BodyProps): ReactElement {
 
   useEffect(() => {
     let isCurrent = true;
-
+    console.log("fetchGwasColoc -> 1 step");
     fetchGwasColoc({ studyLocusId, page, size }).then(res => {
-      const { cursor: newCursor, rows: newRows, count: newCount } = res.data.credibleSets;
+      console.log("fetchGwasColoc -> res", res);
+      const { rows: newRows, count: newCount } = res.data.credibleSets[0].colocalisation;
       if (isCurrent) {
         setInitialLoading(false);
-        // setCursor(newCursor);
         setCount(newCount);
         setRows(newRows);
       }
@@ -224,11 +228,10 @@ function Body({ studyLocusId, entity }: BodyProps): ReactElement {
     const newPageSizeInt = Number(newPageSize);
     if (newPageSizeInt > rows.length && page !== 0) {
       setLoading(true);
-      fetchGwasColoc({ studyLocusId, page, size }).then(res => {
-        const { cursor: newCursor, rows: newRows } = res.data.credibleSets;
-        setRows([...rows, ...newRows]);
+      fetchGwasColoc({ studyLocusId, page: 0, size: newPageSizeInt }).then(res => {
+        const { rows: newRows } = res.data.credibleSets[0].colocalisation;
+        setRows([...newRows]);
         setLoading(false);
-        // setCursor(newCursor);
         setPage(0);
         setPageSize(newPageSizeInt);
       });
@@ -242,19 +245,22 @@ function Body({ studyLocusId, entity }: BodyProps): ReactElement {
     const newPageInt = Number(newPage);
     if (size * newPageInt + size > rows.length && page !== 0) {
       setLoading(true);
-      fetchGwasColoc({ studyLocusId, page, size }).then(res => {
-        const { cursor: newCursor, rows: newRows } = res.data.credibleSets;
+      fetchGwasColoc({ studyLocusId, page: newPageInt, size }).then(res => {
+        const { rows: newRows } = res.data.credibleSets[0].colocalisation;
         setRows([...rows, ...newRows]);
         setLoading(false);
-        // setCursor(newCursor);
-        setPage(0);
+        setPage(newPageInt);
       });
     } else {
       setPage(newPageInt);
     }
   };
 
-  const getWholeDataset = useCursorBatchDownloader(GWAS_COLOC_QUERY, variables, `data.disease.eva`);
+  const getWholeDataset = useCursorBatchDownloader(
+    GWAS_COLOC_QUERY,
+    variables,
+    `data.credibleSets[0].colocalisation`
+  );
 
   return (
     <SectionItem
@@ -263,7 +269,7 @@ function Body({ studyLocusId, entity }: BodyProps): ReactElement {
       showContentLoading={true}
       request={{
         loading: initialLoading,
-        data: { [entity]: { eva: { rows, count } } },
+        data: { [entity]: [{ colocalisation: rows, count }] },
       }}
       renderDescription={() => <Description />}
       renderBody={() => (
