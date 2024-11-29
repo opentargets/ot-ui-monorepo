@@ -1,10 +1,10 @@
-query GWASColocQuery($studyLocusIds: [String!]!) {
-  credibleSets(studyLocusIds: $studyLocusIds) {
+query GWASColocQuery($studyLocusId: String!) {
+  credibleSet(studyLocusId: $studyLocusId) {
     colocalisation(studyTypes: [gwas], page: { size: 250, index: 0 }) {
       otherStudyLocus {
         studyLocusId
         study {
-          studyId
+          id
           projectId
           traitFromSource
           publicationFirstAuthor
@@ -24,6 +24,7 @@ query GWASColocQuery($studyLocusIds: [String!]!) {
       h3
       h4
       clpp
+      betaRatioSignAverage
     }
   }
 }

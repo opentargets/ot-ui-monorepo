@@ -1,32 +1,35 @@
-import { useQuery } from "@apollo/client";
-import { Link, SectionItem, ScientificNotation, DisplayVariantId, OtTable } from "ui";
+import {
+  Link,
+  SectionItem,
+  ScientificNotation,
+  DisplayVariantId,
+  OtTable,
+  Tooltip,
+  ClinvarStars,
+  useBatchQuery,
+  Navigate,
+} from "ui";
 import { Box, Chip } from "@mui/material";
-import { naLabel } from "../../constants";
+import { credsetConfidenceMap, initialResponse, naLabel, table5HChunkSize } from "../../constants";
 import { definition } from ".";
 import Description from "./Description";
 import QTL_CREDIBLE_SETS_QUERY from "./QTLCredibleSetsQuery.gql";
 import { mantissaExponentComparator, variantComparator } from "../../utils/comparators";
+import { ReactNode, useEffect, useState } from "react";
+import { responseType } from "ui/src/types/response";
 
 type getColumnsType = {
   id: string;
   referenceAllele: string;
   alternateAllele: string;
-  posteriorProbabilities: any;
 };
 
-function getColumns({
-  id,
-  referenceAllele,
-  alternateAllele,
-  posteriorProbabilities,
-}: getColumnsType) {
+function getColumns({ id, referenceAllele, alternateAllele }: getColumnsType) {
   return [
     {
-      id: "view",
-      label: "Details",
-      renderCell: ({ studyLocusId }) => <Link to={`../credible-set/${studyLocusId}`}>view</Link>,
-      filterValue: false,
-      exportValue: false,
+      id: "studyLocusId",
+      label: "Navigate",
+      renderCell: ({ studyLocusId }) => <Navigate to={`/credible-set/${studyLocusId}`} />,
     },
     {
       id: "leadVariant",
@@ -59,11 +62,11 @@ function getColumns({
       exportValue: ({ variant }) => variant?.id,
     },
     {
-      id: "study.studyId",
-      label: "Study ID",
+      id: "studyId",
+      label: "Study",
       renderCell: ({ study }) => {
         if (!study) return naLabel;
-        return <Link to={`../study/${study.studyId}`}>{study.studyId}</Link>;
+        return <Link to={`../study/${study.id}`}>{study.id}</Link>;
       },
     },
     {
@@ -89,14 +92,14 @@ function getColumns({
       },
     },
     {
-      id: "study.biosample.biosampleId",
+      id: "study",
       label: "Affected tissue/cell",
       renderCell: ({ study }) => {
         const biosampleId = study?.biosample?.biosampleId;
         if (!biosampleId) return naLabel;
         return (
           <Link external to={`https://www.ebi.ac.uk/ols4/search?q=${biosampleId}&ontology=uberon`}>
-            {biosampleId}
+            {study?.biosample?.biosampleName}
           </Link>
         );
       },
@@ -104,7 +107,7 @@ function getColumns({
     {
       id: "study.condition",
       label: "Condition",
-      renderCell: () => <i>Not in API</i>,
+      renderCell: ({ study }) => study?.condition || naLabel,
     },
     {
       id: "pValue",
@@ -133,6 +136,7 @@ function getColumns({
       label: "Beta",
       filterValue: false,
       tooltip: "Beta with respect to the ALT allele",
+      sortable: true,
       renderCell: ({ beta }) => {
         if (typeof beta !== "number") return naLabel;
         return beta.toPrecision(3);
@@ -155,23 +159,41 @@ function getColumns({
         </>
       ),
       comparator: (rowA, rowB) =>
-        posteriorProbabilities.get(rowA.locus) - posteriorProbabilities.get(rowB.locus),
+        rowA.locus.rows[0].posteriorProbability - rowB.locus.rows[0].posteriorProbability,
       sortable: true,
-      renderCell: ({ locus }) => posteriorProbabilities.get(locus)?.toFixed(3) ?? naLabel,
-      exportValue: ({ locus }) => posteriorProbabilities.get(locus)?.toFixed(3),
+      renderCell: ({ locus }) =>
+        locus.count > 0 ? locus?.rows[0]?.posteriorProbability.toFixed(3) : naLabel,
+      exportValue: ({ locus }) =>
+        locus.count > 0 ? locus?.rows[0]?.posteriorProbability.toFixed(3) : naLabel,
+    },
+    {
+      id: "confidence",
+      label: "Fine-mapping confidence",
+      tooltip:
+        "Fine-mapping confidence based on the quality of the linkage-desequilibrium information available and fine-mapping method",
+      sortable: true,
+      renderCell: ({ confidence }) => {
+        if (!confidence) return naLabel;
+        return (
+          <Tooltip title={confidence} style="">
+            <ClinvarStars num={credsetConfidenceMap[confidence]} />
+          </Tooltip>
+        );
+      },
+      filterValue: ({ confidence }) => credsetConfidenceMap[confidence],
     },
     {
       id: "finemappingMethod",
-      label: "Finemapping method",
+      label: "Fine-mapping method",
     },
     {
       id: "credibleSetSize",
       label: "Credible set size",
-      comparator: (a, b) => a.locus?.length - b.locus?.length,
+      comparator: (a, b) => a.locus?.count - b.locus?.count,
       sortable: true,
       filterValue: false,
-      renderCell: ({ locus }) => locus?.length ?? naLabel,
-      exportValue: ({ locus }) => locus?.length,
+      renderCell: ({ locus }) => locus?.count ?? naLabel,
+      exportValue: ({ locus }) => locus?.count,
     },
   ];
 }
@@ -181,20 +203,37 @@ type BodyProps = {
   entity: string;
 };
 
-function Body({ id, entity }: BodyProps) {
+function Body({ id, entity }: BodyProps): ReactNode {
   const variables = {
     variantId: id,
   };
 
-  const request = useQuery(QTL_CREDIBLE_SETS_QUERY, {
-    variables,
+  const [request, setRequest] = useState<responseType>(initialResponse);
+
+  const getAllQtlData = useBatchQuery({
+    query: QTL_CREDIBLE_SETS_QUERY,
+    variables: {
+      variantId: id,
+      size: table5HChunkSize,
+      index: 0,
+    },
+    dataPath: "data.variant.qtlCredibleSets",
+    size: table5HChunkSize,
   });
+
+  useEffect(() => {
+    getAllQtlData().then(r => {
+      setRequest(r);
+    });
+  }, []);
 
   return (
     <SectionItem
       definition={definition}
       entity={entity}
       request={request}
+      showContentLoading
+      loadingMessage="Loading data. This may take some time..."
       renderDescription={() => (
         <Description
           variantId={request.data?.variant?.id}
@@ -203,16 +242,6 @@ function Body({ id, entity }: BodyProps) {
         />
       )}
       renderBody={() => {
-        // get columns here so get posterior probabilities once - avoids
-        // having to find posterior probs inside sorting comparator function
-        const posteriorProbabilities = new Map();
-        for (const { locus } of request.data?.variant?.credibleSets || []) {
-          const postProb = locus?.find(loc => loc.variant?.id === id)?.posteriorProbability;
-          if (postProb !== undefined) {
-            posteriorProbabilities.set(locus, postProb);
-          }
-        }
-
         return (
           <OtTable
             dataDownloader
@@ -222,9 +251,8 @@ function Body({ id, entity }: BodyProps) {
               id,
               referenceAllele: request.data?.variant.referenceAllele,
               alternateAllele: request.data?.variant.alternateAllele,
-              posteriorProbabilities,
             })}
-            rows={request.data?.variant.credibleSets}
+            rows={request.data?.variant.qtlCredibleSets.rows}
             loading={request.loading}
             query={QTL_CREDIBLE_SETS_QUERY.loc.source.body}
             variables={variables}

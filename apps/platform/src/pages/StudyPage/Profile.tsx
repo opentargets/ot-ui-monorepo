@@ -13,11 +13,9 @@ import GWASCredidbleSetsSummary from "sections/src/study/GWASCredibleSets/Summar
 import QTLCredibleSetsSummary from "sections/src/study/QTLCredibleSets/Summary";
 
 import client from "../../client";
-import ProfileHeader from "./ProfileHeader";
+import ProfileHeader from "./StudyProfileHeader";
 
-const SharedTraitStudiesSection = lazy(
-  () => import("sections/src/study/SharedTraitStudies/Body")
-);
+const SharedTraitStudiesSection = lazy(() => import("sections/src/study/SharedTraitStudies/Body"));
 const GWASCredibleSetsSection = lazy(() => import("sections/src/study/GWASCredibleSets/Body"));
 const QTLCredibleSetsSection = lazy(() => import("sections/src/study/QTLCredibleSets/Body"));
 
@@ -25,7 +23,7 @@ const QTLCredibleSetsSection = lazy(() => import("sections/src/study/QTLCredible
 // (the summary cannot be written as a fragment as it gets further studies)
 const summaries = [GWASCredidbleSetsSummary, QTLCredibleSetsSummary];
 
-const STUDY = "gwasStudy";
+const STUDY = "study";
 const STUDY_PROFILE_SUMMARY_FRAGMENT = summaryUtils.createSummaryFragment(
   summaries,
   "Gwas",
@@ -33,13 +31,15 @@ const STUDY_PROFILE_SUMMARY_FRAGMENT = summaryUtils.createSummaryFragment(
 );
 const STUDY_PROFILE_QUERY = gql`
   query StudyProfileQuery($studyId: String!, $diseaseIds: [String!]!) {
-    gwasStudy(studyId: $studyId) {
-      studyId
+    study(studyId: $studyId) {
+      id
       ...StudyProfileHeaderFragment
       ...StudyProfileSummaryFragment
     }
-    sharedTraitStudies: gwasStudy(diseaseIds: $diseaseIds, page: { size: 2, index: 0}) {
-      studyId
+    sharedTraitStudies: studies(diseaseIds: $diseaseIds, page: { size: 2, index: 0 }) {
+      rows {
+        id
+      }
     }
   }
   ${ProfileHeader.fragments.profileHeader}
@@ -55,7 +55,7 @@ type ProfileProps = {
   }[];
 };
 
-function Profile({ studyId, studyCategory, diseases }: ProfileProps) {
+function Profile({ studyId, studyType, projectId, diseases }: ProfileProps) {
   const diseaseIds = diseases?.map(d => d.id) || [];
 
   return (
@@ -68,36 +68,30 @@ function Profile({ studyId, studyCategory, diseases }: ProfileProps) {
       }}
       client={client}
     >
-      <ProfileHeader studyCategory={studyCategory} />
+      <ProfileHeader projectId={projectId} />
 
       <SummaryContainer>
-        {(studyCategory === "GWAS" || studyCategory === "FINNGEN") &&
+        {studyType === "gwas" && (
           <>
-            <SharedTraitStudiesSummary />
             <GWASCredidbleSetsSummary />
+            <SharedTraitStudiesSummary />
           </>
-        }
-        {studyCategory === "QTL" &&
-          <QTLCredibleSetsSummary />
-        }
+        )}
+        {studyType !== "gwas" && <QTLCredibleSetsSummary />}
       </SummaryContainer>
 
       <SectionContainer>
-        {(studyCategory === "GWAS" || studyCategory === "FINNGEN") &&
+        {studyType === "gwas" && (
           <>
-            <Suspense fallback={<SectionLoader />}>
-              <SharedTraitStudiesSection
-                studyId={studyId}
-                diseaseIds={diseaseIds}
-                entity={STUDY}
-              />
-            </Suspense>
             <Suspense fallback={<SectionLoader />}>
               <GWASCredibleSetsSection id={studyId} entity={STUDY} />
             </Suspense>
+            <Suspense fallback={<SectionLoader />}>
+              <SharedTraitStudiesSection studyId={studyId} diseaseIds={diseaseIds} entity={STUDY} />
+            </Suspense>
           </>
-        }
-        {studyCategory === "QTL" && (
+        )}
+        {studyType !== "gwas" && (
           <Suspense fallback={<SectionLoader />}>
             <QTLCredibleSetsSection id={studyId} entity={STUDY} />
           </Suspense>

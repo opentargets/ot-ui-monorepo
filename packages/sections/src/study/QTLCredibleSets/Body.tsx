@@ -1,5 +1,5 @@
 import { useQuery } from "@apollo/client";
-import { Link, SectionItem, ScientificNotation, DisplayVariantId, OtTable } from "ui";
+import { Link, SectionItem, ScientificNotation, DisplayVariantId, OtTable, Navigate } from "ui";
 import { naLabel } from "../../constants";
 import { definition } from ".";
 import Description from "./Description";
@@ -8,11 +8,9 @@ import { mantissaExponentComparator, variantComparator } from "../../utils/compa
 
 const columns = [
   {
-    id: "view",
-    label: "Details",
-    renderCell: ({ studyLocusId }) => <Link to={`../credible-set/${studyLocusId}`}>view</Link>,
-    filterValue: false,
-    exportValue: false,
+    id: "studyLocusId",
+    label: "Navigate",
+    renderCell: ({ studyLocusId }) => <Navigate to={`/credible-set/${studyLocusId}`} />,
   },
   {
     id: "leadVariant",
@@ -70,16 +68,16 @@ const columns = [
   },
   {
     id: "finemappingMethod",
-    label: "Finemapping method",
+    label: "Fine-mapping method",
   },
   {
     id: "credibleSetSize",
     label: "Credible set size",
-    comparator: (a, b) => a.locus?.length - b.locus?.length,
+    comparator: (a, b) => a.locus?.count - b.locus?.count,
     sortable: true,
     filterValue: false,
-    renderCell: ({ locus }) => locus?.length ?? naLabel,
-    exportValue: ({ locus }) => locus?.length,
+    renderCell: ({ locus }) => locus?.count ?? naLabel,
+    exportValue: ({ locus }) => locus?.count,
   },
 ];
 
@@ -102,7 +100,7 @@ function Body({ id, entity }: BodyProps) {
       definition={definition}
       entity={entity}
       request={request}
-      renderDescription={() => <Description studyId={request.data?.gwasStudy[0].studyId} />}
+      renderDescription={() => <Description studyId={request.data?.study.id} />}
       renderBody={() => (
         <OtTable
           dataDownloader
@@ -110,7 +108,7 @@ function Body({ id, entity }: BodyProps) {
           sortBy="pValue"
           columns={columns}
           loading={request.loading}
-          rows={request.data?.gwasStudy[0].credibleSets}
+          rows={request.data?.study.credibleSets.rows}
           query={QTL_CREDIBLE_SETS_QUERY.loc.source.body}
           variables={variables}
         />

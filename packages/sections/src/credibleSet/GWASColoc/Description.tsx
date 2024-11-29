@@ -3,10 +3,8 @@ import { Link } from "ui";
 function Description() {
   return (
     <>
-      GWAS studies that colocalise with this credible set. Source:{" "}
-      <Link to="../" >
-        Open Targets
-      </Link>
+      Colocalisation metrics for overlapping credible sets from GWAS studies. Source:{" "}
+      <Link to="../">Open Targets</Link>
     </>
   );
 }

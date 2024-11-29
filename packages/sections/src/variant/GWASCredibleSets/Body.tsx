@@ -1,33 +1,38 @@
-import { useQuery } from "@apollo/client";
-import { Link, SectionItem, ScientificNotation, DisplayVariantId, OtTable } from "ui";
+import {
+  Link,
+  SectionItem,
+  ScientificNotation,
+  DisplayVariantId,
+  OtTable,
+  Tooltip,
+  ClinvarStars,
+  OtScoreLinearBar,
+  useBatchQuery,
+  Navigate,
+} from "ui";
 import { Box, Chip } from "@mui/material";
-import { naLabel } from "../../constants";
+import { credsetConfidenceMap, initialResponse, naLabel, table5HChunkSize } from "../../constants";
 import { definition } from ".";
 import Description from "./Description";
 import GWAS_CREDIBLE_SETS_QUERY from "./GWASCredibleSetsQuery.gql";
 import { Fragment } from "react/jsx-runtime";
 import { mantissaExponentComparator, variantComparator } from "../../utils/comparators";
+import PheWasPlot from "./PheWasPlot";
+import { useEffect, useState } from "react";
+import { responseType } from "ui/src/types/response";
 
 type getColumnsType = {
   id: string;
   referenceAllele: string;
   alternateAllele: string;
-  posteriorProbabilities: any;
 };
 
-function getColumns({
-  id,
-  referenceAllele,
-  alternateAllele,
-  posteriorProbabilities,
-}: getColumnsType) {
+function getColumns({ id, referenceAllele, alternateAllele }: getColumnsType) {
   return [
     {
-      id: "view",
-      label: "Details",
-      renderCell: ({ studyLocusId }) => <Link to={`../credible-set/${studyLocusId}`}>view</Link>,
-      filterValue: false,
-      exportValue: false,
+      id: "studyLocusId",
+      label: "Navigate",
+      renderCell: ({ studyLocusId }) => <Navigate to={`/credible-set/${studyLocusId}`} />,
     },
     {
       id: "leadVariant",
@@ -61,7 +66,7 @@ function getColumns({
     },
     {
       id: "trait",
-      label: "Trait",
+      label: "Reported trait",
       filterValue: ({ study }) => study?.traitFromSource,
       renderCell: ({ study }) => {
         if (!study?.traitFromSource) return naLabel;
@@ -71,7 +76,7 @@ function getColumns({
     },
     {
       id: "disease",
-      label: "Diseases",
+      label: "Disease/phenotype",
       filterValue: ({ study }) => study?.diseases.map(d => d.name).join(", "),
       renderCell: ({ study }) => {
         if (!study?.diseases?.length) return naLabel;
@@ -89,11 +94,11 @@ function getColumns({
       exportValue: ({ study }) => study?.diseases?.map(d => d.name).join(", "),
     },
     {
-      id: "study.studyId",
-      label: "Study ID",
+      id: "studyId",
+      label: "Study",
       renderCell: ({ study }) => {
         if (!study) return naLabel;
-        return <Link to={`../study/${study.studyId}`}>{study.studyId}</Link>;
+        return <Link to={`../study/${study.id}`}>{study.id}</Link>;
       },
     },
     {
@@ -145,70 +150,67 @@ function getColumns({
         </>
       ),
       comparator: (rowA, rowB) =>
-        posteriorProbabilities.get(rowA.locus) - posteriorProbabilities.get(rowB.locus),
+        rowA.locus.rows[0].posteriorProbability - rowB.locus.rows[0].posteriorProbability,
       sortable: true,
-      renderCell: ({ locus }) => posteriorProbabilities.get(locus)?.toFixed(3) ?? naLabel,
-      exportValue: ({ locus }) => posteriorProbabilities.get(locus)?.toFixed(3),
-    },
-    {
-      id: "ldr2",
-      label: "LD (r²)",
-      filterValue: false,
-      tooltip: (
-        <>
-          Linkage disequilibrium with the fixed page variant (
-          <DisplayVariantId
-            variantId={id}
-            referenceAllele={referenceAllele}
-            alternateAllele={alternateAllele}
-            expand={false}
-          />
-          ).
-        </>
-      ),
-      renderCell: ({ locus }) => {
-        const r2 = locus?.find(obj => obj.variant?.id === id)?.r2Overall;
-        if (typeof r2 !== "number") return naLabel;
-        return r2.toFixed(2);
-      },
+      renderCell: ({ locus }) =>
+        locus.count > 0 ? locus?.rows[0]?.posteriorProbability.toFixed(3) : naLabel,
+      exportValue: ({ locus }) =>
+        locus.count > 0 ? locus?.rows[0]?.posteriorProbability.toFixed(3) : naLabel,
     },
     {
       id: "finemappingMethod",
-      label: "Finemapping method",
+      label: "Fine-mapping method",
+    },
+    {
+      id: "confidence",
+      label: "Fine-mapping confidence",
+      tooltip:
+        "Fine-mapping confidence based on the suitability of the linkage-desequilibrium information and fine-mapping method",
+      sortable: true,
+      renderCell: ({ confidence }) => {
+        if (!confidence) return naLabel;
+        return (
+          <Tooltip title={confidence} style="">
+            <ClinvarStars num={credsetConfidenceMap[confidence]} />
+          </Tooltip>
+        );
+      },
+      filterValue: ({ confidence }) => credsetConfidenceMap[confidence],
     },
     {
       id: "topL2G",
       label: "Top L2G",
-      filterValue: ({ strongestLocus2gene }) => strongestLocus2gene?.target.approvedSymbol,
+      filterValue: ({ l2Gpredictions }) => l2Gpredictions?.target.approvedSymbol,
       tooltip: "Top gene prioritised by our locus-to-gene model",
-      renderCell: ({ strongestLocus2gene }) => {
-        if (!strongestLocus2gene?.target) return naLabel;
-        const { target } = strongestLocus2gene;
+      renderCell: ({ l2Gpredictions }) => {
+        if (!l2Gpredictions[0]?.target) return naLabel;
+        const { target } = l2Gpredictions[0];
         return <Link to={`/target/${target.id}`}>{target.approvedSymbol}</Link>;
       },
-      exportValue: ({ strongestLocus2gene }) => strongestLocus2gene?.target.approvedSymbol,
+      exportValue: ({ l2Gpredictions }) => l2Gpredictions?.target.approvedSymbol,
     },
     {
       id: "l2gScore",
       label: "L2G score",
-      comparator: (rowA, rowB) =>
-        rowA?.strongestLocus2gene?.score - rowB?.strongestLocus2gene?.score,
+      comparator: (rowA, rowB) => rowA?.l2Gpredictions[0]?.score - rowB?.l2Gpredictions[0]?.score,
       sortable: true,
-      filterValue: false,
-      renderCell: ({ strongestLocus2gene }) => {
-        if (typeof strongestLocus2gene?.score !== "number") return naLabel;
-        return strongestLocus2gene.score.toFixed(3);
+      renderCell: ({ l2Gpredictions }) => {
+        if (!l2Gpredictions[0]?.score) return naLabel;
+        return (
+          <Tooltip title={l2Gpredictions[0].score.toFixed(3)} style="">
+            <OtScoreLinearBar variant="determinate" value={l2Gpredictions[0].score * 100} />
+          </Tooltip>
+        );
       },
-      exportValue: ({ strongestLocus2gene }) => strongestLocus2gene?.score,
     },
     {
       id: "credibleSetSize",
       label: "Credible set size",
-      comparator: (a, b) => a.locus?.length - b.locus?.length,
+      comparator: (a, b) => a.locus?.count - b.locus?.count,
       sortable: true,
       filterValue: false,
-      renderCell: ({ locus }) => locus?.length ?? naLabel,
-      exportValue: ({ locus }) => locus?.length,
+      renderCell: ({ locus }) => locus?.count ?? naLabel,
+      exportValue: ({ locus }) => locus?.count,
     },
   ];
 }
@@ -223,15 +225,32 @@ function Body({ id, entity }: BodyProps) {
     variantId: id,
   };
 
-  const request = useQuery(GWAS_CREDIBLE_SETS_QUERY, {
-    variables,
+  const [request, setRequest] = useState<responseType>(initialResponse);
+
+  const getAllGwasData = useBatchQuery({
+    query: GWAS_CREDIBLE_SETS_QUERY,
+    variables: {
+      variantId: id,
+      size: table5HChunkSize,
+      index: 0,
+    },
+    dataPath: "data.variant.gwasCredibleSets",
+    size: table5HChunkSize,
   });
+
+  useEffect(() => {
+    getAllGwasData().then(r => {
+      setRequest(r);
+    });
+  }, []);
 
   return (
     <SectionItem
       definition={definition}
       entity={entity}
       request={request}
+      showContentLoading
+      loadingMessage="Loading data. This may take some time..."
       renderDescription={() => (
         <Description
           variantId={request.data?.variant.id}
@@ -239,33 +258,34 @@ function Body({ id, entity }: BodyProps) {
           alternateAllele={request.data?.variant.alternateAllele}
         />
       )}
-      renderBody={() => {
-        // get columns here so get posterior probabilities once - avoids
-        // having to find posterior probs inside sorting comparator function
-        const posteriorProbabilities = new Map();
-        for (const { locus } of request.data?.variant?.credibleSets || []) {
-          const postProb = locus?.find(loc => loc.variant?.id === id)?.posteriorProbability;
-          if (postProb !== undefined) {
-            posteriorProbabilities.set(locus, postProb);
-          }
-        }
-
+      renderChart={() => {
         return (
-          <OtTable
-            dataDownloader
-            showGlobalFilter
-            sortBy="pValue"
-            columns={getColumns({
-              id,
-              referenceAllele: request.data?.variant.referenceAllele,
-              alternateAllele: request.data?.variant.alternateAllele,
-              posteriorProbabilities,
-            })}
-            rows={request.data?.variant.credibleSets}
+          <PheWasPlot
             loading={request.loading}
-            query={GWAS_CREDIBLE_SETS_QUERY.loc.source.body}
-            variables={variables}
+            data={request.data?.variant.gwasCredibleSets.rows}
+            id={id}
           />
+        );
+      }}
+      renderBody={() => {
+        return (
+          <>
+            <OtTable
+              dataDownloader
+              showGlobalFilter
+              sortBy="l2gScore"
+              order="desc"
+              columns={getColumns({
+                id,
+                referenceAllele: request.data?.variant.referenceAllele,
+                alternateAllele: request.data?.variant.alternateAllele,
+              })}
+              rows={request.data?.variant.gwasCredibleSets.rows}
+              loading={request.loading}
+              query={GWAS_CREDIBLE_SETS_QUERY.loc.source.body}
+              variables={variables}
+            />
+          </>
         );
       }}
     />

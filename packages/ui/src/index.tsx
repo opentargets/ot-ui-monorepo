@@ -9,6 +9,7 @@ export { default as SummaryContainer } from "./components/Summary/SummaryContain
 export { default as SummaryItem } from "./components/Summary/SummaryItem";
 export { default as Tooltip } from "./components/Tooltip";
 export { default as Link } from "./components/Link";
+export { default as Navigate } from "./components/Navigate";
 export { default as Chip } from "./components/Chip";
 export { default as ChipList } from "./components/ChipList";
 export { default as TooltipStyledLabel } from "./components/TooltipStyledLabel";
@@ -37,6 +38,7 @@ export { default as Legend } from "./components/Legend";
 export { default as ApiPlaygroundDrawer } from "./components/ApiPlaygroundDrawer";
 export { default as OtTable } from "./components/OtTable/OtTable";
 export { default as OtPopper } from "./components/OtPopper";
+export { default as OtScoreLinearBar } from "./components/OtScoreLinearBar";
 
 export { default as EmptyPage } from "./pages/EmptyPage";
 export { default as NotFoundPage } from "./pages/NotFoundPage";
@@ -47,6 +49,7 @@ export * from "./contexts/ConfigurationProvider";
 
 export * as summaryUtils from "./components/Summary/utils";
 export * from "./components/Section";
+export * from "./components/Plot";
 
 export * from "./components/ProfileHeader";
 export * from "./components/DownloadSvgPlot";
@@ -65,3 +68,7 @@ export { default as useBatchQuery } from "./hooks/useBatchQuery";
 export { default as useCursorBatchDownloader } from "./hooks/useCursorBatchDownloader";
 export { default as usePermissions } from "./hooks/usePermissions";
 export { default as useDebounce } from "./hooks/useDebounce";
+
+/* TYPES */
+
+// export { default as responseType } from "./types/response";

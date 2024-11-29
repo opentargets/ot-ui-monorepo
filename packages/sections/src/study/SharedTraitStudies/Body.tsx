@@ -14,12 +14,12 @@ function getColumns(diseaseIds: string[]) {
   return [
     {
       id: "studyId",
-      label: "Study ID",
-      renderCell: ({ studyId }) => <Link to={`./${studyId}`}>{studyId}</Link>,
+      label: "Study",
+      renderCell: ({ id }) => <Link to={`./${id}`}>{id}</Link>,
     },
     {
       id: "sharedDiseases",
-      label: "Shared traits",
+      label: "Shared disease/phenotype",
       renderCell: ({ diseases }) => {
         const sharedTraits = diseases.filter(d => diseaseIdsSet.has(d.id));
         return (
@@ -41,11 +41,11 @@ function getColumns(diseaseIds: string[]) {
     },
     {
       id: "traitFromSource",
-      label: "Trait from source",
+      label: "Reported trait",
     },
     {
       id: "author",
-      label: "Author",
+      label: "First author",
       renderCell: ({ projectId, publicationFirstAuthor }) =>
         getStudyCategory(projectId) === "FINNGEN" ? "FinnGen" : publicationFirstAuthor || naLabel,
       exportValue: ({ projectId, publicationFirstAuthor }) =>
@@ -53,7 +53,7 @@ function getColumns(diseaseIds: string[]) {
     },
     {
       id: "publicationDate",
-      label: "Date",
+      label: "Year",
       renderCell: ({ projectId, publicationDate }) =>
         getStudyCategory(projectId) === "FINNGEN"
           ? "2023"
@@ -137,18 +137,6 @@ type BodyProps = {
   entity: string;
 };
 
-const parseStudies = (studyId, gwasStudy) => {
-  const studies = [];
-  const studyIds = new Set([studyId]);
-  for (const study of gwasStudy) {
-    if (!studyIds.has(study.studyId)) {
-      studies.push(study);
-      studyIds.add(study.studyId);
-    }
-  }
-  return studies;
-};
-
 export function Body({ studyId, diseaseIds, entity }: BodyProps) {
   const variables = {
     diseaseIds: diseaseIds,
@@ -164,14 +152,13 @@ export function Body({ studyId, diseaseIds, entity }: BodyProps) {
     <SectionItem
       definition={definition}
       request={request}
-      entity={entity}
+      entity={"studies"}
       renderDescription={() => <Description studyId={studyId} />}
       renderBody={() => {
-        const rows = request.data?.gwasStudy ? parseStudies(studyId, request.data.gwasStudy) : [];
         return (
           <OtTable
             columns={columns}
-            rows={rows}
+            rows={request.data?.studies?.rows}
             loading={request.loading}
             sortBy="nSamples"
             order="desc"

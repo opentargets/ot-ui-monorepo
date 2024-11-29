@@ -9,7 +9,7 @@ type DescriptionProps = {
 function Description({ variantId, referenceAllele, alternateAllele }: DescriptionProps) {
   return (
     <>
-      GWAS 99% credible sets containing{" "}
+      95% credible sets associated with complex traits containing{" "}
       <strong>
         <DisplayVariantId
           variantId={variantId}
@@ -17,10 +17,7 @@ function Description({ variantId, referenceAllele, alternateAllele }: Descriptio
           alternateAllele={alternateAllele}
         />
       </strong>
-      . Source{" "}
-      <Link to="../" >
-        Open Targets
-      </Link>
+      . Source <Link to="../">Open Targets</Link>
     </>
   );
 }

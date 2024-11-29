@@ -2,11 +2,22 @@ import { DefaultSortProp, loadingTableRows } from "./table.types";
 
 /*********************************************************************
  * FN TO CONVERT CLASSIC MUI TABLE COLUMNS TO TANSTACK TABLE COLUMNS *
+ * RECURSIVE FN TO CHECK IF COLUMNS ARE NESTED
  *********************************************************************/
 export function mapTableColumnToTanstackColumns(
   allColumns: Record<string, unknown>[]
 ): Record<string, unknown>[] {
-  return allColumns.map(column => mapToTanstackColumnObject(column));
+  const arr: Record<string, unknown>[] = [];
+  allColumns.forEach(e => {
+    if (isNestedColumns(e)) {
+      const headerObj = {
+        header: e.header,
+        columns: mapTableColumnToTanstackColumns(e.columns),
+      };
+      arr.push(headerObj);
+    } else arr.push(mapToTanstackColumnObject(e));
+  });
+  return arr;
 }
 
 /******************************************************
@@ -90,11 +101,26 @@ export function getCurrentPagePosition(
   return `${currentPageStartRange} - ${pageEndResultSize} of ${totalRows}`;
 }
 
+/*****************************************************************
+ * CREATES EMPTY ROWS WITH COLUMN OBJECT TO IMITATE LOADING ROWS *
+ *****************************************************************/
 export function getLoadingRows(columns, size = 10): loadingTableRows[] {
-  const rowObject = columns.map(e => ({
-    [e.id]: null,
-  }));
+  const rowObject: Record<string, null> = {};
+  for (const e in columns) {
+    const item = columns[e].id;
+    rowObject[item] = null;
+  }
   return new Array(size).fill(rowObject);
+}
+
+/***********************************
+ * CHECK IF THE COLUMNS ARE NESTED *
+ * @param:
+ * column: object
+ * @return: boolean
+ ***********************************/
+function isNestedColumns(column: Record<string, unknown>): boolean {
+  return Object.hasOwn(column, "columns");
 }
 
 /****************************************************************************

@@ -4,14 +4,15 @@ fragment CredibleSetProfileHeaderFragment on credibleSet {
   beta
   standardError
   effectAlleleFrequencyFromSource
-  locus {
-    posteriorProbability
-    pValueMantissa
-    pValueExponent
-    beta
-    standardError
-    variant {
-      id
+  qualityControls
+  locus(variantIds: $variantIds) {
+    count
+    rows {
+      posteriorProbability
+      pValueMantissa
+      pValueExponent
+      beta
+      standardError
     }
   }
   variant {
@@ -20,10 +21,10 @@ fragment CredibleSetProfileHeaderFragment on credibleSet {
     rsIds
   }
   finemappingMethod
-  credibleSetIndex
   purityMinR2
   locusStart
   locusEnd
+  confidence
   study {
     projectId
     publicationFirstAuthor
@@ -33,15 +34,31 @@ fragment CredibleSetProfileHeaderFragment on credibleSet {
       id
       name
     }
+    backgroundTraits {
+      id
+      name
+    }
     target {
       id
       approvedSymbol
     }
     biosample {
       biosampleId
+      biosampleName
     }
     publicationJournal
     pubmedId
     nSamples
+    studyType
+    hasSumstats
+    analysisFlags
+    sumstatQCValues {
+      QCCheckName
+      QCCheckValue
+    }
+    ldPopulationStructure {
+      ldPopulation
+      relativeSampleSize
+    }
   }
 }

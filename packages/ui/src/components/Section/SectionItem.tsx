@@ -1,15 +1,5 @@
 import classNames from "classnames";
-import {
-  Avatar,
-  Box,
-  Card,
-  CardContent,
-  Divider,
-  Grid,
-  LinearProgress,
-  Skeleton,
-  Typography,
-} from "@mui/material";
+import { Avatar, Box, Card, CardContent, Divider, Grid, Skeleton, Typography } from "@mui/material";
 import { Element } from "react-scroll";
 
 import ErrorBoundary from "../ErrorBoundary";
@@ -20,6 +10,7 @@ import PartnerLockIcon from "../PartnerLockIcon";
 import SectionViewToggle from "./SectionViewToggle";
 import { ReactNode, useState } from "react";
 import { VIEW } from "../../constants";
+import { SummaryLoader } from "../PublicationsDrawer";
 
 type definitionType = {
   id: string;
@@ -42,6 +33,7 @@ type SectionItemProps = {
   showEmptySection: boolean;
   // check use
   showContentLoading: boolean;
+  loadingMessage: string;
   defaultView: string;
 };
 
@@ -50,11 +42,11 @@ function SectionItem({
   request,
   renderDescription,
   renderBody,
-  tags,
   chipText,
   entity,
   showEmptySection = false,
   showContentLoading = false,
+  loadingMessage,
   renderChart,
   defaultView = VIEW.table,
 }: SectionItemProps): ReactNode {
@@ -69,16 +61,6 @@ function SectionItem({
   }
 
   if (!hasData && !showEmptySection && !loading) return null;
-
-  function getSelectedView(): ReactNode {
-    if (error) return <SectionError error={error} />;
-    if (showContentLoading && loading)
-      return <Skeleton sx={{ height: 390 }} variant="rectangular" />;
-    if (selectedView === VIEW.table) return renderBody();
-    if (selectedView === VIEW.chart) return renderChart();
-    // if (!loading && !hasData && showEmptySection)
-    return <div className={classes.noData}> No data available for this {entity}. </div>;
-  }
 
   return (
     <Grid item xs={12}>
@@ -127,7 +109,30 @@ function SectionItem({
                 </Box>
               </Box>
               <Divider />
-              <CardContent className={classes.cardContent}>{getSelectedView()}</CardContent>
+              <CardContent className={classes.cardContent}>
+                <>
+                  {error && <SectionError error={error} />}
+                  {showContentLoading && loading && (
+                    loadingMessage
+                      ? <Box
+                        width="100%"
+                        height={390}
+                        bgcolor={theme => theme.palette.grey[100]}
+                        display="flex"
+                        flexDirection="column"
+                        justifyContent="center"
+                      >
+                        <SummaryLoader message={loadingMessage} />
+                      </Box>
+                      : <Skeleton sx={{ height: 390 }} variant="rectangular" />
+                  )}
+                  {hasData && selectedView === VIEW.table && renderBody()}
+                  {hasData && selectedView === VIEW.chart && renderChart()}
+                  {showEmptySection && (
+                    <div className={classes.noData}> No data available for this {entity}. </div>
+                  )}
+                </>
+              </CardContent>
             </ErrorBoundary>
           </Card>
         </Element>

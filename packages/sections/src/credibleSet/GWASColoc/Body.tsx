@@ -1,5 +1,13 @@
 import { useQuery } from "@apollo/client";
-import { Link, SectionItem, DisplayVariantId, ScientificNotation, OtTable } from "ui";
+import {
+  Link,
+  SectionItem,
+  DisplayVariantId,
+  ScientificNotation,
+  OtTable,
+  Tooltip,
+  Navigate,
+} from "ui";
 import { naLabel } from "../../constants";
 import { definition } from ".";
 import Description from "./Description";
@@ -9,27 +17,25 @@ import { getStudyCategory } from "../../utils/getStudyCategory";
 
 const columns = [
   {
-    id: "view",
-    label: "Details",
+    id: "otherStudyLocus.studyLocusId",
+    label: "Navigate",
     renderCell: ({ otherStudyLocus }) => {
-      if (!otherStudyLocus) return naLabel;
-      return <Link to={`./${otherStudyLocus.studyLocusId}`}>view</Link>;
+      if (!otherStudyLocus?.variant) return naLabel;
+      return <Navigate to={`./${otherStudyLocus.studyLocusId}`} />;
     },
-    filterValue: false,
-    exportValue: false,
   },
   {
-    id: "otherStudyLocus.study.studyId",
-    label: "Study ID",
+    id: "otherStudyLocus.study.id",
+    label: "Study",
     renderCell: ({ otherStudyLocus }) => {
-      const studyId = otherStudyLocus?.study?.studyId;
+      const studyId = otherStudyLocus?.study?.id;
       if (!studyId) return naLabel;
       return <Link to={`../study/${studyId}`}>{studyId}</Link>;
     },
   },
   {
     id: "otherStudyLocus.study.traitFromSource",
-    label: "Trait",
+    label: "Reported trait",
     renderCell: ({ otherStudyLocus }) => {
       const trait = otherStudyLocus?.study?.traitFromSource;
       if (!trait) return naLabel;
@@ -38,7 +44,7 @@ const columns = [
   },
   {
     id: "otherStudyLocus.study.publicationFirstAuthor",
-    label: "Author",
+    label: "First author",
     renderCell: ({ otherStudyLocus }) => {
       const { projectId, publicationFirstAuthor } = otherStudyLocus?.study || {};
       return getStudyCategory(projectId) === "FINNGEN"
@@ -110,6 +116,35 @@ const columns = [
     label: "Colocalisation Method",
   },
   {
+    id: "betaRatioSignAverage",
+    label: "Directionality",
+    tooltip: "Effect directionality based on the ratio of betas between the two credible sets",
+    renderCell: ({ betaRatioSignAverage }) => {
+      if (betaRatioSignAverage == null) return naLabel;
+      let category = "Inconclusive";
+      if (betaRatioSignAverage <= -0.99) category = "Opposite";
+      else if (betaRatioSignAverage >= 0.99) category = "Same";
+      const displayValue =
+        Math.abs(betaRatioSignAverage) === 1
+          ? betaRatioSignAverage
+          : betaRatioSignAverage.toFixed(2);
+      return <Tooltip title={`Beta ratio sign average: ${displayValue}`}>{category}</Tooltip>;
+    },
+    filterValue: ({ betaRatioSignAverage }) => {
+      if (betaRatioSignAverage == null) return null;
+      if (betaRatioSignAverage <= -0.99) return "Opposite";
+      else if (betaRatioSignAverage >= 0.99) return "Same";
+      return "Inconclusive";
+    },
+    sortable: false,
+    exportValue: ({ betaRatioSignAverage }) => {
+      if (betaRatioSignAverage == null) return null;
+      if (betaRatioSignAverage <= -0.99) return "Opposite";
+      else if (betaRatioSignAverage >= 0.99) return "Same";
+      return "Inconclusive";
+    },
+  },
+  {
     id: "h3",
     label: "H3",
     tooltip: (
@@ -157,7 +192,7 @@ type BodyProps = {
 
 function Body({ studyLocusId, entity }: BodyProps) {
   const variables = {
-    studyLocusIds: [studyLocusId],
+    studyLocusId: studyLocusId,
   };
 
   const request = useQuery(GWAS_COLOC_QUERY, {
@@ -180,7 +215,7 @@ function Body({ studyLocusId, entity }: BodyProps) {
             order="asc"
             columns={columns}
             loading={request.loading}
-            rows={request.data?.credibleSets[0].colocalisation}
+            rows={request.data?.credibleSet.colocalisation}
             query={GWAS_COLOC_QUERY.loc.source.body}
             variables={variables}
           />

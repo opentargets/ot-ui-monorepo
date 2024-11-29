@@ -1,0 +1,26 @@
+fragment StudyProfileHeaderFragment on Gwas {
+  publicationFirstAuthor
+  publicationDate
+  publicationJournal
+  pubmedId
+  traitFromSource
+  nSamples
+  initialSampleSize
+  replicationSamples {
+    sampleSize
+    ancestry
+  }
+  nCases
+  nControls
+  cohorts
+  ldPopulationStructure {
+    ldPopulation
+    relativeSampleSize
+  }
+  qualityControls
+  analysisFlags
+  discoverySamples {
+    sampleSize
+    ancestry
+  }
+}
