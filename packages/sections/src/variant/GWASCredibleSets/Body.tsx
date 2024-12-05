@@ -32,9 +32,7 @@ function getColumns({ id, referenceAllele, alternateAllele }: getColumnsType) {
     {
       id: "studyLocusId",
       label: "Navigate",
-      renderCell: ({ studyLocusId }) => (
-        <Navigate to={`/credible-set/${studyLocusId}`} />
-      ),
+      renderCell: ({ studyLocusId }) => <Navigate to={`/credible-set/${studyLocusId}`} />,
     },
     {
       id: "leadVariant",
@@ -182,7 +180,7 @@ function getColumns({ id, referenceAllele, alternateAllele }: getColumnsType) {
     {
       id: "topL2G",
       label: "Top L2G",
-      filterValue: ({ l2Gpredictions }) => l2Gpredictions?.target.approvedSymbol,
+      filterValue: ({ l2Gpredictions }) => l2Gpredictions?.target?.approvedSymbol,
       tooltip: "Top gene prioritised by our locus-to-gene model",
       renderCell: ({ l2Gpredictions }) => {
         if (!l2Gpredictions[0]?.target) return naLabel;
@@ -196,7 +194,8 @@ function getColumns({ id, referenceAllele, alternateAllele }: getColumnsType) {
       label: "L2G score",
       comparator: (rowA, rowB) => rowA?.l2Gpredictions[0]?.score - rowB?.l2Gpredictions[0]?.score,
       sortable: true,
-      tooltip: "Machine learning prediction linking a gene to a credible set using all features. Score range [0,1].",
+      tooltip:
+        "Machine learning prediction linking a gene to a credible set using all features. Score range [0,1].",
       renderCell: ({ l2Gpredictions }) => {
         if (!l2Gpredictions[0]?.score) return naLabel;
         return (

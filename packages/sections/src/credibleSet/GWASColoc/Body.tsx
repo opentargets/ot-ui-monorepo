@@ -124,12 +124,11 @@ const columns = [
       let category = "Inconclusive";
       if (betaRatioSignAverage <= -0.99) category = "Opposite";
       else if (betaRatioSignAverage >= 0.99) category = "Same";
-      const displayValue = Math.abs(betaRatioSignAverage) === 1
-        ? betaRatioSignAverage
-        : betaRatioSignAverage.toFixed(2)
-      return <Tooltip title={`Beta ratio sign average: ${displayValue}`}>
-        {category}
-      </Tooltip>
+      const displayValue =
+        Math.abs(betaRatioSignAverage) === 1
+          ? betaRatioSignAverage
+          : betaRatioSignAverage.toFixed(2);
+      return <Tooltip title={`Beta ratio sign average: ${displayValue}`}>{category}</Tooltip>;
     },
     filterValue: ({ betaRatioSignAverage }) => {
       if (betaRatioSignAverage == null) return null;
