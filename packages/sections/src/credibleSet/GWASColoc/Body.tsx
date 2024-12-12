@@ -22,7 +22,7 @@ const columns = [
     label: "Navigate",
     renderCell: ({ otherStudyLocus }) => {
       if (!otherStudyLocus?.variant) return naLabel;
-      return <Navigate to={`./${otherStudyLocus.studyLocusId}`} />;
+      return <Navigate to={`/credible-set/${otherStudyLocus.studyLocusId}`} />;
     },
   },
   {
@@ -31,7 +31,7 @@ const columns = [
     renderCell: ({ otherStudyLocus }) => {
       const studyId = otherStudyLocus?.study?.id;
       if (!studyId) return naLabel;
-      return <Link to={`../study/${studyId}`}>{studyId}</Link>;
+      return <Link to={`/study/${studyId}`}>{studyId}</Link>;
     },
   },
   {

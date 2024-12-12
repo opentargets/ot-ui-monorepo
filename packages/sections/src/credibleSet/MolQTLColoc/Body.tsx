@@ -21,7 +21,7 @@ const columns = [
     label: "Navigate",
     renderCell: ({ otherStudyLocus }) => {
       if (!otherStudyLocus?.variant) return naLabel;
-      return <Navigate to={`./${otherStudyLocus.studyLocusId}`} />;
+      return <Navigate to={`/credible-set/${otherStudyLocus.studyLocusId}`} />;
     },
   },
   {
@@ -30,7 +30,7 @@ const columns = [
     renderCell: ({ otherStudyLocus }) => {
       const studyId = otherStudyLocus?.study?.id;
       if (!studyId) return naLabel;
-      return <Link to={`../study/${studyId}`}>{studyId}</Link>;
+      return <Link to={`/study/${studyId}`}>{studyId}</Link>;
     },
   },
   {
@@ -59,7 +59,10 @@ const columns = [
       const biosample = otherStudyLocus?.study?.biosample;
       if (!biosample) return naLabel;
       return (
-        <Link external to={`https://www.ebi.ac.uk/ols4/search?q=${biosample.biosampleId}&ontology=uberon`}>
+        <Link
+          external
+          to={`https://www.ebi.ac.uk/ols4/search?q=${biosample.biosampleId}&ontology=uberon`}
+        >
           {biosample.biosampleName}
         </Link>
       );

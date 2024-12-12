@@ -205,7 +205,7 @@ function ProfileHeader() {
                 {study.diseases.map(({ id, name }, index) => (
                   <Fragment key={id}>
                     {index > 0 ? ", " : null}
-                    <Link to={`../disease/${id}`}>{name}</Link>
+                    <Link to={`/disease/${id}`}>{name}</Link>
                   </Fragment>
                 ))}
               </Field>
@@ -215,7 +215,7 @@ function ProfileHeader() {
                 {study.backgroundTraits.map(({ id, name }, index) => (
                   <Fragment key={id}>
                     {index > 0 ? ", " : null}
-                    <Link to={`../disease/${id}`}>{name}</Link>
+                    <Link to={`/disease/${id}`}>{name}</Link>
                   </Fragment>
                 ))}
               </Field>
@@ -231,7 +231,7 @@ function ProfileHeader() {
             )}
             {target?.id && (
               <Field loading={loading} title="Affected gene">
-                <Link to={`../target/${target.id}`}>{target.approvedSymbol}</Link>
+                <Link to={`/target/${target.id}`}>{target.approvedSymbol}</Link>
               </Field>
             )}
             {study?.biosample?.biosampleId && (

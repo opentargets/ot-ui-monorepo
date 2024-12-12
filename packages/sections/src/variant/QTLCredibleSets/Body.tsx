@@ -66,7 +66,7 @@ function getColumns({ id, referenceAllele, alternateAllele }: getColumnsType) {
       label: "Study",
       renderCell: ({ study }) => {
         if (!study) return naLabel;
-        return <Link to={`../study/${study.id}`}>{study.id}</Link>;
+        return <Link to={`/study/${study.id}`}>{study.id}</Link>;
       },
     },
     {
@@ -103,7 +103,9 @@ function getColumns({ id, referenceAllele, alternateAllele }: getColumnsType) {
           </Link>
         );
       },
-      exportValue: ({ study }) => { return `[${study?.biosample?.biosampleId}]:${study?.biosample?.biosampleName}` },
+      exportValue: ({ study }) => {
+        return `[${study?.biosample?.biosampleId}]:${study?.biosample?.biosampleName}`;
+      },
     },
     {
       id: "study.condition",

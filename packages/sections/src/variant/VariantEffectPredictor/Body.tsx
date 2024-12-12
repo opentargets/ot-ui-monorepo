@@ -8,7 +8,6 @@ import { naLabel } from "../../constants";
 import { identifiersOrgLink } from "../../utils/global";
 import VARIANT_EFFECT_PREDICTOR_QUERY from "./VariantEffectPredictorQuery.gql";
 
-
 function formatVariantConsequenceLabel(label) {
   return label.replace(/_/g, " ");
 }
@@ -24,7 +23,7 @@ const columns = [
     sortable: true,
     renderCell: ({ target, transcriptId, uniprotAccessions }) => {
       if (!target) return naLabel;
-      let displayElement = <Link to={`../target/${target.id}`}>{target.approvedSymbol}</Link>;
+      let displayElement = <Link to={`/target/${target.id}`}>{target.approvedSymbol}</Link>;
       let tooltipContent = <></>;
       if (transcriptId) {
         tooltipContent = (
@@ -82,10 +81,12 @@ const columns = [
       const geneInfo = `Gene: ${target?.id};`;
       const canonicalTranscript = transcriptId ? `Canonical transcript: ${transcriptId};` : "";
       const biotype = `Biotype: ${target?.biotype};`;
-      const protein = uniprotAccessions?.length ? `Protein(s): ${uniprotAccessions.join(", ")}` : "";
+      const protein = uniprotAccessions?.length
+        ? `Protein(s): ${uniprotAccessions.join(", ")}`
+        : "";
       const aaChange = aminoAcidChange ? `AA: ${aminoAcidChange};` : "";
       return [geneInfo, canonicalTranscript, biotype, protein, aaChange].join("");
-    }      
+    },
   },
   {
     id: "variantConsequences.label",

@@ -90,7 +90,7 @@ function getColumns({ id, referenceAllele, alternateAllele }: getColumnsType) {
             {study.diseases.map((d, i) => (
               <Fragment key={d.id}>
                 {i > 0 && ", "}
-                <Link to={`../disease/${d.id}`}>{d.name}</Link>
+                <Link to={`/disease/${d.id}`}>{d.name}</Link>
               </Fragment>
             ))}
           </>
@@ -103,7 +103,7 @@ function getColumns({ id, referenceAllele, alternateAllele }: getColumnsType) {
       label: "Study",
       renderCell: ({ study }) => {
         if (!study) return naLabel;
-        return <Link to={`../study/${study.id}`}>{study.id}</Link>;
+        return <Link to={`/study/${study.id}`}>{study.id}</Link>;
       },
       exportValue: ({ study }) => study?.id,
     },

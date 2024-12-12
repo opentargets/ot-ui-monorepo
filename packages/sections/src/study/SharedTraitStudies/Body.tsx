@@ -15,7 +15,7 @@ function getColumns(diseaseIds: string[]) {
     {
       id: "studyId",
       label: "Study",
-      renderCell: ({ id }) => <Link to={`./${id}`}>{id}</Link>,
+      renderCell: ({ id }) => <Link to={`/study/${id}`}>{id}</Link>,
       exportValue: ({ id }) => id,
     },
     {
@@ -28,7 +28,7 @@ function getColumns(diseaseIds: string[]) {
             {sharedTraits.map(({ id, name }, index) => (
               <Fragment key={id}>
                 {index > 0 ? ", " : null}
-                <Link to={`../disease/${id}`}>{name}</Link>
+                <Link to={`/disease/${id}`}>{name}</Link>
               </Fragment>
             ))}
           </>
@@ -90,8 +90,8 @@ function getColumns(diseaseIds: string[]) {
         getStudyCategory(projectId) === "FINNGEN"
           ? "FinnGen"
           : cohorts?.length
-            ? cohorts.join(", ")
-            : null,
+          ? cohorts.join(", ")
+          : null,
     },
     {
       id: "publication",
