@@ -4,7 +4,9 @@ function Description() {
   return (
     <>
       Colocalisation metrics for overlapping credible sets from GWAS studies. Source:{" "}
-      <Link to="../">Open Targets</Link>
+      <Link to="https://home.opentargets.org/merged-product-documentation" external>
+        Open Targets
+      </Link>
     </>
   );
 }

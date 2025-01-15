@@ -16,6 +16,7 @@ export { default as TooltipStyledLabel } from "./components/TooltipStyledLabel";
 export { default as DirectionOfEffectIcon } from "./components/DirectionOfEffectIcon";
 export { default as DirectionOfEffectTooltip } from "./components/DirectionOfEffectTooltip";
 export { default as DisplayVariantId } from "./components/DisplayVariantId";
+export { default as DisplaySampleSize } from "./components/DisplaySampleSize";
 export { default as LabelChip } from "./components/LabelChip";
 export { default as BasePage } from "./components/BasePage";
 export { default as NewChip } from "./components/NewChip";
@@ -27,6 +28,8 @@ export { default as PrivateRoute } from "./components/PrivateRoute";
 export { default as EllsWrapper } from "./components/EllsWrapper";
 export { default as ErrorBoundary } from "./components/ErrorBoundary";
 export { default as GlobalSearch } from "./components/GlobalSearch/GlobalSearch";
+export { default as DetailPopover } from "./components/DetailPopover";
+export { default as SummaryStatsTable } from "./components/SummaryStatsTable";
 
 export { default as PrivateWrapper } from "./components/PrivateWrapper";
 export { default as NavBar } from "./components/NavBar";
@@ -39,6 +42,8 @@ export { default as ApiPlaygroundDrawer } from "./components/ApiPlaygroundDrawer
 export { default as OtTable } from "./components/OtTable/OtTable";
 export { default as OtPopper } from "./components/OtPopper";
 export { default as OtScoreLinearBar } from "./components/OtScoreLinearBar";
+export { default as OtTableSSP } from "./components/OtTable/OtTableSSP";
+export { default as EntityPanel } from "./components/EntityPanel/EntityPanel";
 
 export { default as EmptyPage } from "./pages/EmptyPage";
 export { default as NotFoundPage } from "./pages/NotFoundPage";

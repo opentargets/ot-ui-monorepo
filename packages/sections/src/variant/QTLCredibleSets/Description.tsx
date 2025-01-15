@@ -23,7 +23,10 @@ function Description({
           alternateAllele={alternateAllele}
         />
       </strong>
-      . Source <Link to="/">Open Targets</Link>
+      . Source{" "}
+      <Link to="https://home.opentargets.org/merged-product-documentation" external>
+        Open Targets
+      </Link>
     </>
   );
 }

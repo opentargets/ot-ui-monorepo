@@ -29,7 +29,7 @@ function Header({
     if (diseases?.length) {
       traitLinks = (
         <XRefLinks
-          label="Trait"
+          label="Disease or phenotype"
           urlStem="../disease/"
           ids={diseases.map(d => d.id)}
           names={diseases.map(d => d.name)}
@@ -67,7 +67,7 @@ function Header({
       );
     }
     sourceLink = {
-      id: "UKB",
+      id: "UKB-PPP",
       url: "https://www.synapse.org/Synapse:syn51364943/wiki/622119",
     };
   } else {

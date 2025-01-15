@@ -6,7 +6,7 @@ import { getStudyCategory } from "../../utils/getStudyCategory";
 import GWAS_STUDIES_BODY_QUERY from "./GWASStudiesQuery.gql";
 import { definition } from ".";
 import { epmcUrl } from "ui/src/utils/urls";
-import { useEffect, useState } from "react";
+import { ReactElement, useEffect, useState } from "react";
 import { responseType } from "ui/src/types/response";
 
 const columns = [
@@ -109,20 +109,18 @@ type BodyProps = {
   label: string;
 };
 
-function Body({ id: efoId, label: diseaseName }: BodyProps) {
+function Body({ id: efoId, label: diseaseName }: BodyProps): ReactElement {
   const variables = {
     diseaseIds: [efoId],
+    size: table5HChunkSize,
+    index: 0,
   };
 
   const [request, setRequest] = useState<responseType>(initialResponse);
 
   const getData = useBatchQuery({
     query: GWAS_STUDIES_BODY_QUERY,
-    variables: {
-      diseaseIds: variables.diseaseIds,
-      size: table5HChunkSize,
-      index: 0,
-    },
+    variables,
     dataPath: "data.studies",
     size: table5HChunkSize,
   });
@@ -131,7 +129,7 @@ function Body({ id: efoId, label: diseaseName }: BodyProps) {
     getData().then(r => {
       setRequest(r);
     });
-  }, []);
+  }, [efoId]);
 
   return (
     <SectionItem

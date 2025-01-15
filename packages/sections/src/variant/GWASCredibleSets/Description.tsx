@@ -17,7 +17,10 @@ function Description({ variantId, referenceAllele, alternateAllele }: Descriptio
           alternateAllele={alternateAllele}
         />
       </strong>
-      . Source <Link to="../">Open Targets</Link>
+      . Source{" "}
+      <Link to="https://home.opentargets.org/merged-product-documentation" external>
+        Open Targets
+      </Link>
     </>
   );
 }

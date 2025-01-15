@@ -8,7 +8,9 @@ function Description({ studyId }: DescriptionProps) {
   return (
     <>
       95% GWAS credible sets associated with study <strong>{studyId}</strong>. Source{" "}
-      <Link to="../">Open Targets</Link>
+      <Link to="https://home.opentargets.org/merged-product-documentation" external>
+        Open Targets
+      </Link>
     </>
   );
 }
