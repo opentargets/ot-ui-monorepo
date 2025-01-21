@@ -1,13 +1,14 @@
 import { Typography } from "@mui/material";
+import { ReactElement } from "react";
 
-export default function TooltipRow({
-  children,
-  label,
-  data,
-  labelWidth,
-  valueWidth,
-  truncateValue,
-}) {
+type ObsTooltipRowProps = {
+  children: ReactElement;
+  label?: string;
+  valueWidth?: string;
+  truncateValue?: boolean;
+};
+
+function ObsTooltipRow({ children, label, valueWidth, truncateValue = false }: ObsTooltipRowProps) {
   const truncateLine = truncateValue
     ? {
         whiteSpace: "nowrap",
@@ -18,7 +19,7 @@ export default function TooltipRow({
 
   return (
     <tr style={{ verticalAlign: "top" }}>
-      <td width={labelWidth}>
+      <td>
         <Typography
           variant="subtitle2"
           fontSize={13}
@@ -40,3 +41,5 @@ export default function TooltipRow({
     </tr>
   );
 }
+
+export default ObsTooltipRow;

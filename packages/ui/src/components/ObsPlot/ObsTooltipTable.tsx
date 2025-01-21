@@ -1,4 +1,10 @@
-export default function TooltipTable({ children }) {
+import { ReactElement } from "react";
+
+type ObsTooltipTableProps = {
+  children: ReactElement;
+};
+
+function ObsTooltipTable({ children }: ObsTooltipTableProps) {
   return (
     <div
       style={{
@@ -18,3 +24,5 @@ export default function TooltipTable({ children }) {
     </div>
   );
 }
+
+export default ObsTooltipTable;
