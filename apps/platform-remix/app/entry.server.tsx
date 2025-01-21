@@ -11,8 +11,13 @@ import { createReadableStreamFromReadable } from "@remix-run/node";
 import { RemixServer } from "@remix-run/react";
 import { isbot } from "isbot";
 import { renderToPipeableStream } from "react-dom/server";
-import { MuiProvider } from "./mui/MuiProvider";
+import pkg from "@apollo/client";
+import { getDataFromTree } from "@apollo/client/react/ssr";
 
+import { MuiProvider } from "./mui/MuiProvider";
+// import client from "./client";
+
+const { ApolloProvider, ApolloClient, InMemoryCache, createHttpLink } = pkg;
 const ABORT_DELAY = 5_000;
 
 export default function handleRequest(
@@ -26,18 +31,8 @@ export default function handleRequest(
   loadContext: AppLoadContext
 ) {
   return isbot(request.headers.get("user-agent") || "")
-    ? handleBotRequest(
-        request,
-        responseStatusCode,
-        responseHeaders,
-        remixContext
-      )
-    : handleBrowserRequest(
-        request,
-        responseStatusCode,
-        responseHeaders,
-        remixContext
-      );
+    ? handleBotRequest(request, responseStatusCode, responseHeaders, remixContext)
+    : handleBrowserRequest(request, responseStatusCode, responseHeaders, remixContext);
 }
 
 function handleBotRequest(
@@ -49,11 +44,7 @@ function handleBotRequest(
   return new Promise((resolve, reject) => {
     let shellRendered = false;
     const { pipe, abort } = renderToPipeableStream(
-      <RemixServer
-        context={remixContext}
-        url={request.url}
-        abortDelay={ABORT_DELAY}
-      />,
+      <RemixServer context={remixContext} url={request.url} abortDelay={ABORT_DELAY} />,
       {
         onAllReady() {
           shellRendered = true;
@@ -96,21 +87,31 @@ function handleBrowserRequest(
   responseHeaders: Headers,
   remixContext: EntryContext
 ) {
+  const client = new ApolloClient({
+    ssrMode: true,
+    cache: new InMemoryCache(),
+    link: createHttpLink({
+      uri: "https://flyby-gateway.herokuapp.com/", // from Apollo's Voyage tutorial series (https://www.apollographql.com/tutorials/voyage-part1/)
+      headers: request.headers,
+      credentials: request.credentials ?? "include", // or "same-origin" if your backend server is the same domain
+    }),
+  });
+
   return new Promise((resolve, reject) => {
     let shellRendered = false;
     const { pipe, abort } = renderToPipeableStream(
-      <MuiProvider>
-        <RemixServer
-          context={remixContext}
-          url={request.url}
-          abortDelay={ABORT_DELAY}
-        />
-      </MuiProvider>,
+      <ApolloProvider client={client}>
+        <MuiProvider>
+          <RemixServer context={remixContext} url={request.url} abortDelay={ABORT_DELAY} />
+        </MuiProvider>
+      </ApolloProvider>,
       {
         onShellReady() {
           shellRendered = true;
           const body = new PassThrough();
+          console.log("onShellReady -> body", body);
           const stream = createReadableStreamFromReadable(body);
+          console.log("onShellReady -> stream", stream);
 
           responseHeaders.set("Content-Type", "text/html");
 
