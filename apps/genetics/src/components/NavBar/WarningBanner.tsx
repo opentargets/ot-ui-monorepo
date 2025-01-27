@@ -18,8 +18,12 @@ function WarningBanner() {
       <FontAwesomeIcon icon={faWarning} />
       <Typography variant="subtitle1">
         Open Targets Genetics is no longer maintained, but updated genetics data
-        and analyses will be available in the Open Targets Platform in March.
-        See{' '}
+        and analyses will be available in the
+        <Link external to="https://platform.opentargets.org/">
+          {' '}
+          Open Targets Platform
+        </Link>{' '}
+        from spring release 2025. See{' '}
         <Link
           external
           to="https://community.opentargets.org/t/watch-out-for-our-new-product-release-next-spring/1627"
