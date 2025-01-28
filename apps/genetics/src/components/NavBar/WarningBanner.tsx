@@ -23,7 +23,7 @@ function WarningBanner() {
           {' '}
           Open Targets Platform
         </Link>{' '}
-        from spring release 2025. See{' '}
+        from 25.03 release. See{' '}
         <Link
           external
           to="https://community.opentargets.org/t/watch-out-for-our-new-product-release-next-spring/1627"
