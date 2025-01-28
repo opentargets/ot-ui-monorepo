@@ -13,6 +13,8 @@ function WarningBanner() {
         color: 'black',
         alignItems: 'center',
         gap: 5,
+        paddingX: 2,
+        paddingY: 1,
       }}
     >
       <FontAwesomeIcon icon={faWarning} />
