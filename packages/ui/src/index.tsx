@@ -8,6 +8,11 @@ export { default as LongList } from "./components/LongList";
 export { default as SummaryContainer } from "./components/Summary/SummaryContainer";
 export { default as SummaryItem } from "./components/Summary/SummaryItem";
 export { default as Tooltip } from "./components/Tooltip";
+export { default as ObsPlot } from "./components/ObsPlot/ObsPlot";
+export { default as ObsChart } from "./components/ObsPlot/ObsChart";
+export { default as ObsTooltip } from "./components/ObsPlot/ObsTooltip";
+export { default as ObsTooltipRow } from "./components/ObsPlot/ObsTooltipRow";
+export { default as ObsTooltipTable } from "./components/ObsPlot/ObsTooltipTable";
 export { default as Link } from "./components/Link";
 export { default as Navigate } from "./components/Navigate";
 export { default as Chip } from "./components/Chip";
@@ -30,6 +35,7 @@ export { default as ErrorBoundary } from "./components/ErrorBoundary";
 export { default as GlobalSearch } from "./components/GlobalSearch/GlobalSearch";
 export { default as DetailPopover } from "./components/DetailPopover";
 export { default as SummaryStatsTable } from "./components/SummaryStatsTable";
+export { default as KnownDrugsSourceDrawer } from "./components/KnownDrugsSourceDrawer";
 
 export { default as PrivateWrapper } from "./components/PrivateWrapper";
 export { default as NavBar } from "./components/NavBar";
@@ -54,7 +60,6 @@ export * from "./contexts/ConfigurationProvider";
 
 export * as summaryUtils from "./components/Summary/utils";
 export * from "./components/Section";
-export * from "./components/Plot";
 
 export * from "./components/ProfileHeader";
 export * from "./components/DownloadSvgPlot";

@@ -10,6 +10,7 @@ import {
   useBatchQuery,
   Navigate,
 } from "ui";
+import { Box } from "@mui/material";
 import { naLabel, credsetConfidenceMap, initialResponse, table5HChunkSize } from "../../constants";
 import { definition } from ".";
 import Description from "./Description";
@@ -27,11 +28,13 @@ const columns = [
   {
     id: "studyLocusId",
     label: "Navigate",
+    enableHiding: false,
     renderCell: ({ studyLocusId }) => <Navigate to={`/credible-set/${studyLocusId}`} />,
   },
   {
     id: "leadVariant",
     label: "Lead variant",
+    enableHiding: false,
     comparator: variantComparator(d => d?.variant),
     sortable: true,
     filterValue: ({ variant: v }) =>
@@ -190,7 +193,9 @@ function Body({ id, entity }: BodyProps): ReactElement {
       renderDescription={() => <Description studyId={request.data?.study.id} />}
       renderBody={() => (
         <>
-          <ManhattanPlot loading={request.loading} data={request.data?.study.credibleSets.rows} />
+          <Box my={3} ml={2}>
+            <ManhattanPlot loading={request.loading} data={request.data?.study.credibleSets.rows} />
+          </Box>
           <OtTable
             dataDownloader
             showGlobalFilter
