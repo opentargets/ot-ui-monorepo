@@ -13,6 +13,19 @@
       "name": "Launch Platform Chrome against localhost",
       "url": "http://localhost:3000",
       "webRoot": "${workspaceFolder}/apps/platform/src/"
+    },
+    {
+      "type": "chrome",
+      "request": "launch",
+      "name": "Platform Remix",
+      "url": "http://localhost:5173",
+      "webRoot": "${workspaceFolder}/apps/platform-remix/app/"
+    },
+    {
+      "command": "yarn dev:platform:remix",
+      "name": "Run platform remix dev",
+      "request": "launch",
+      "type": "node-terminal"
     }
   ]
 }

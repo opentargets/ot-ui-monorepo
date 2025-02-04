@@ -1,15 +1,9 @@
-import {
-  Links,
-  Meta,
-  Outlet,
-  Scripts,
-  ScrollRestoration,
-} from "@remix-run/react";
+import { Links, Meta, Outlet, Scripts, ScrollRestoration } from "@remix-run/react";
 
 import { getMuiLinks } from "./mui/getMuiLinks";
 import { MuiMeta } from "./mui/MuiMeta";
 import { LinksFunction } from "@remix-run/node";
-import { MuiDocument } from "./mui/MuiDocument";
+import { CssBaseline } from "ui";
 
 export const links: LinksFunction = () => [...getMuiLinks()];
 
@@ -35,9 +29,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 export default function App() {
   return (
     <>
-      <MuiDocument>
-        <Outlet />
-      </MuiDocument>
+      <CssBaseline />
+      <Outlet />
     </>
   );
 }

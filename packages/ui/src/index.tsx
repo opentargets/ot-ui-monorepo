@@ -1,6 +1,7 @@
 export { default as Footer } from "./components/Footer";
 export * from "./components/Footer";
-export { default as ThemeProvider } from "./ThemeProvider/ThemeProvider";
+export * from "./components/Theme";
+export { default as _ThemeProvider } from "./ThemeProvider/ThemeProvider";
 export { default as LoadingBackdrop } from "./components/LoadingBackdrop";
 export * from "./components/GlobalSearch/SearchContext";
 export { default as LongText } from "./components/LongText";
