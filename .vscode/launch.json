@@ -17,13 +17,13 @@
     {
       "type": "chrome",
       "request": "launch",
-      "name": "Platform Remix",
+      "name": "Browser - Platform remix",
       "url": "http://localhost:5173",
       "webRoot": "${workspaceFolder}/apps/platform-remix/app/"
     },
     {
       "command": "yarn dev:platform:remix",
-      "name": "Run platform remix dev",
+      "name": "Dev - Platform remix",
       "request": "launch",
       "type": "node-terminal"
     }
